@@ -1,8 +1,11 @@
+import argparse
+import random
 import sys
 from generate_graph import Graph, STARTING_LENGTH
 
 class Game:
-    def __init__(self):
+    def __init__(self, singleplayer):
+        self.singleplayer = singleplayer
         self.current_player = 0
         self.current_node = None
         self.strikes = [0, 0]
@@ -12,61 +15,77 @@ class Game:
     def valid_moves_from_node(self, node):
         return node.children.difference(self.used_nodes)
 
+    def add_strike(self, message):
+        print(message)
+
+        self.strikes[self.current_player] += 1
+
+        if self.strikes[self.current_player] >= 3:
+            print(f'Player {self.current_player} has been Stumped.')
+            if self.current_node is not None:
+                valid_choices = self.valid_moves_from_node(self.current_node)
+                valid_choices_str = ', '.join([node.word for node in valid_choices])
+                print(f'Valid choices were [{valid_choices_str}]')
+
+            sys.exit(0)
+        else:
+            print(f'\tYou have used {self.strikes[self.current_player]} / 3 strikes')
+
+    def do_computer_turn(self):
+        pass
+
+    def do_player_turn(self):
+        word = input(f'Player {self.current_player} enter a word: ').strip().upper()
+
+        node = self.graph.query(word)
+
+        if node is None:
+            self.add_strike(f'\t{word} is not a valid word.')
+            return
+        if node in self.used_nodes:
+            self.add_strike(f'\t{word} has already been played!')
+            return
+        if self.current_node is not None and node not in self.current_node.children:
+            self.add_strike(f'\t{word} is not reachable from {self.current_node.word}.')
+            return
+        
+        print(f'\tChose word {word} with popularity {node.popularity}')
+        self.used_nodes.add(node)
+        self.current_node = node
+        self.current_player = (self.current_player + 1) % 2
+
+        valid_choices = self.valid_moves_from_node(self.current_node)
+        if len(valid_choices) == 0:
+            print(f'Player {self.current_player} has been Stumped. No valid moves remaining.')
+            sys.exit(0)
+        else:
+            winning_moves_count = 0
+            highest_popularity = 0
+            for node in valid_choices:
+                highest_popularity = max(highest_popularity, node.popularity)
+                if len(self.valid_moves_from_node(node)) == 0:
+                    winning_moves_count += 1
+            print(f'\tThere are {len(valid_choices)} possible moves with highest popularity {highest_popularity}. {winning_moves_count} are Stumpers.')
+
+
     def play(self):
-        def add_strike(message):
-            print(message)
-            
-            # No strikes for first word choice
-            if self.current_node is None:
-                return
-
-            self.strikes[self.current_player] += 1
-
-            if self.strikes[self.current_player] >= 3:
-                print(f'Player {self.current_player} loses.')
-                if self.current_node is not None:
-                    valid_choices = self.valid_moves_from_node(self.current_node)
-                    valid_choices_str = ', '.join([node.word for node in valid_choices])
-                    print(f'Valid choices were [{valid_choices_str}]')
-
-                sys.exit(0)
-            else:
-                print(f'\tYou have used {self.strikes[self.current_player]} / 3 strikes')
+        self.current_node = random.choices(
+            population=self.graph.valid_start_nodes,
+            weights=[node.popularity for node in self.graph.valid_start_nodes],
+            k=1)[0]
+        print(f'{self.current_node.word} is the initial word.')
 
         while True:
-            word = input(f'Player {self.current_player} enter a word: ').strip().upper()
-            if self.current_node is None and len(word) != STARTING_LENGTH:
-                print(f'Please enter a {STARTING_LENGTH} letter word for the initial word.')
-                continue
-
-            node = self.graph.query(word)
-
-            if node is None:
-                add_strike(f'{word} is not a valid word.')
-                continue
-            if node in self.used_nodes:
-                add_strike(f'{word} has already been played!')
-                continue
-            if self.current_node is not None and node not in self.current_node.children:
-                add_strike(f'{word} is not reachable from {self.current_node.word}.')
-                continue
-            
-            self.used_nodes.add(node)
-            self.current_node = node
-            self.current_player = (self.current_player + 1) % 2
-
-            valid_choices = self.valid_moves_from_node(self.current_node)
-            if len(valid_choices) == 0:
-                print(f'Player {self.current_player} loses. No valid moves remaining.')
-                return
+            if self.singleplayer and self.current_player == 1:
+                self.do_computer_turn()
             else:
-                winning_moves_count = 0
-                for node in valid_choices:
-                    if len(self.valid_moves_from_node(node)) == 0:
-                        winning_moves_count += 1
-                print(f'\tThere are {len(valid_choices)} possible moves. {winning_moves_count} are winning moves.')
+                self.do_player_turn()
 
 
 if __name__ == '__main__':
-    game = Game()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--singleplayer')
+    args = parser.parse_args()
+
+    game = Game(args.singleplayer)
     game.play()

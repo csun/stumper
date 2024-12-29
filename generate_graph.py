@@ -1,26 +1,38 @@
-import timeit
 import json
+from wordfreq import zipf_frequency
 
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 STARTING_LENGTH = 4
+MIN_STARTING_POPULARITY = 2
 ALLOW_DELETIONS = False
+ALLOW_MOVES = False
+ALLOW_ANAGRAMS = True
 
 class Graph:
     def __init__(self):
         self.explore_queue = []
         self.word_to_node = {}
+        self.anagram_to_nodes = {}
         self.nodes = []
+        self.valid_start_nodes = []
 
     def from_file(filepath):
         graph = Graph()
         with open(filepath) as f:
             graph_contents = json.load(f)
         
-        for word in graph_contents['nodes']:
-            graph.add_word(word)
+        for word, popularity in zip(graph_contents['nodes'], graph_contents['popularities']):
+            node = graph.add_word(word)
+            node.popularity = popularity
+
         for parent, children in enumerate(graph_contents['edges']):
             for child in children:
                 graph.nodes[parent].children.add(graph.nodes[child])
+
+        graph.valid_start_nodes = [node for node in graph.nodes if
+                                   len(node.word) == STARTING_LENGTH and
+                                   len(node.children) > 0 and
+                                   node.popularity >= MIN_STARTING_POPULARITY]
 
         return graph
 
@@ -51,6 +63,13 @@ class Graph:
             if ALLOW_DELETIONS:
                 for remove_idx in range(len(word)):
                     node.try_connect(word[:remove_idx] + word[remove_idx + 1:])
+            if ALLOW_MOVES:
+                for letter in set(word):
+                    for move_idx in range(len(word)):
+                        node.try_connect(word[:move_idx] + letter + word[move_idx + 1:])
+            if ALLOW_ANAGRAMS:
+                for anagram_node in self.anagram_to_nodes[node.anagram_key]:
+                    node.try_connect(anagram_node.word)
 
     def export(self, filepath):
         new_nodes = []
@@ -71,7 +90,7 @@ class Graph:
             edges.append(node_edges)    
 
         with open(filepath, 'w') as f:
-            json.dump({'nodes': [node.word for node in new_nodes], 'edges': edges}, f)
+            json.dump({'nodes': [node.word for node in new_nodes], 'popularities': [node.popularity for node in new_nodes], 'edges': edges}, f)
         
         print(f'Exported {len(new_nodes)} nodes.')
 
@@ -79,14 +98,22 @@ class Graph:
         node = Node(self, word)
         self.word_to_node[word] = node
         self.nodes.append(node)
+
+        if ALLOW_ANAGRAMS:
+            if node.anagram_key not in self.anagram_to_nodes:
+                self.anagram_to_nodes[node.anagram_key] = []
+            self.anagram_to_nodes[node.anagram_key].append(node)
+
         return node
 
 class Node:
     def __init__(self, graph, word):
         self.graph = graph
         self.word = word
+        self.anagram_key = ''.join(sorted(word))
         self.children = set()
         self.index = 0
+        self.popularity = zipf_frequency(word.lower(), 'en')
         self.queued = False
     
     def __str__(self):
@@ -109,9 +136,7 @@ class Node:
 if __name__ == '__main__':
     graph = Graph()
     
-    #graph.generate()
-    #graph.export('graph.json')
-
+    graph.generate()
+    graph.export('graph.json')
 
     graph = Graph.from_file('graph.json')
-    print(graph.query('TRICKLY'))
