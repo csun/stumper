@@ -202,7 +202,7 @@ namespace KaimiraGames
         /// <summary>
         /// https://www.keithschwarz.com/darts-dice-coins/
         /// </summary>
-        private void Recalculate()
+        public void Recalculate()
         {
             _totalWeight = 0;
             _areAllProbabilitiesIdentical = false;

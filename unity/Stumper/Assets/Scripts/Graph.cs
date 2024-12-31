@@ -11,7 +11,7 @@ namespace Stumper
         public string Word;
         public string AnagramKey;
         public float LogFrequency;
-        public List<Node> Children = new();
+        public HashSet<Node> Children = new();
 
         public Node(string word, float logFrequency)
         {
@@ -32,7 +32,7 @@ namespace Stumper
     }
 
     [CreateAssetMenu(fileName = "Graph", menuName = "Stumper/Graph", order = 0)]
-    class Graph : ScriptableObject, ISerializationCallbackReceiver
+    internal class Graph : ScriptableObject, ISerializationCallbackReceiver
     {
         [Serializable]
         struct SerializableNode
@@ -71,15 +71,63 @@ namespace Stumper
         [SerializeField]
         List<SerializableNode> serializableNodes;
 
+        public void ShuffleStartNodes()
+        {
+            validStartNodes.Recalculate();
+        }
+
         public Node Query(string word)
         {
             return wordToNode.GetValueOrDefault(word.ToUpper(), null);
         }
 
-        [ContextMenu("Debug Graph")]
-        public void DebugOutput()
+        public Node GetRandomStartNode()
         {
-            Debug.Log(Query("buts"));
+            return validStartNodes.Next();
+        }
+
+        public void OnBeforeSerialize()
+        {
+            // I don't know if we need this - unsure if order is preserved when iterating over
+            // dictionary values multiple times. If so don't need. I'm on a plane so can't check.
+            var ordered = new List<Node>();
+            var wordToIndex = new Dictionary<string, int>();
+            serializableNodes = new();
+
+            foreach (var node in wordToNode.Values)
+            {
+                var idx = ordered.Count;
+                wordToIndex[node.Word] = idx;
+                ordered.Add(node);
+            }
+
+            serializableNodes = new();
+            foreach (var node in ordered)
+            {
+                serializableNodes.Add(new(node, wordToIndex));
+            }
+        }
+
+        public void OnAfterDeserialize()
+        {
+            wordToNode = new();
+            var newNodes = new List<Node>();
+
+            foreach (var node in serializableNodes)
+            {
+                newNodes.Add(node.ToNode());
+            }
+
+            for (var i = 0; i < newNodes.Count; i++)
+            {
+                wordToNode[newNodes[i].Word] = newNodes[i];
+                foreach (var childIdx in serializableNodes[i].Children)
+                {
+                    newNodes[i].Children.Add(newNodes[childIdx]);
+                }
+            }
+
+            RegenerateValidStartNodes();
         }
 
         [ContextMenu("Regenerate Graph")]
@@ -202,58 +250,19 @@ namespace Stumper
 
         void RegenerateValidStartNodes()
         {
-            validStartNodes = new();
+            var weightedList = new List<WeightedListItem<Node>>();
+
             foreach (var node in wordToNode.Values)
             {
                 if (node.Word.Length == StartingWordLength && node.Children.Count > 0)
                 {
-                    validStartNodes.Add(node, Mathf.RoundToInt(Mathf.Pow(node.LogFrequency, 10)));
-                }
-            }
-        }
-
-        public void OnBeforeSerialize()
-        {
-            // I don't know if we need this - unsure if order is preserved when iterating over
-            // dictionary values multiple times. If so don't need. I'm on a plane so can't check.
-            var ordered = new List<Node>();
-            var wordToIndex = new Dictionary<string, int>();
-            serializableNodes = new();
-
-            foreach (var node in wordToNode.Values)
-            {
-                var idx = ordered.Count;
-                wordToIndex[node.Word] = idx;
-                ordered.Add(node);
-            }
-
-            serializableNodes = new();
-            foreach (var node in ordered)
-            {
-                serializableNodes.Add(new(node, wordToIndex));
-            }
-        }
-
-        public void OnAfterDeserialize()
-        {
-            wordToNode = new();
-            var newNodes = new List<Node>();
-
-            foreach (var node in serializableNodes)
-            {
-                newNodes.Add(node.ToNode());
-            }
-
-            for (var i = 0; i < newNodes.Count; i++)
-            {
-                wordToNode[newNodes[i].Word] = newNodes[i];
-                foreach (var childIdx in serializableNodes[i].Children)
-                {
-                    newNodes[i].Children.Add(newNodes[childIdx]);
+                    // WARN - you can change how this gets weighted but it may silently overflow
+                    // and discard some items internally. Make sure cumulative weights are kept inbounds.
+                    weightedList.Add(new(node, Mathf.RoundToInt(node.LogFrequency)));
                 }
             }
 
-            RegenerateValidStartNodes();
+            validStartNodes = new(weightedList);
         }
     }
 }
