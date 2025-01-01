@@ -2,17 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Stumper
 {
     internal class GameManager : MonoBehaviour
     {
         public event Action OnCurrentNodeChanged;
+        public event Action<int> OnTimerUpdated;
 
         public Graph WordGraph;
 
         public int MaxStrikes;
+
+        public float StartingTimer;
+        public float PerMoveAddedTime;
+        public float MaxTimer;
 
         int currentPlayer;
         int nextPlayer => (currentPlayer + 1) % 2;
@@ -27,6 +31,8 @@ namespace Stumper
             }
         }
         Node _currentNode;
+
+        public float[] Timers = new float[2];
 
         int[] strikes = new int[2];
         HashSet<Node> usedNodes = new();
@@ -54,6 +60,8 @@ namespace Stumper
             CurrentNode = node;
 
             usedNodes.Add(node);
+            Timers[currentPlayer] = Math.Min(MaxTimer, Timers[currentPlayer] + PerMoveAddedTime);
+            OnTimerUpdated.Invoke(currentPlayer);
             currentPlayer = nextPlayer;
 
             var valid = ValidMoves();
@@ -81,28 +89,55 @@ namespace Stumper
         void DeclareLoser()
         {
             Debug.Log($"Player {currentPlayer} has been Stumped.");
-            Debug.Log($"Valid choies were {ValidMoves()}");
-            Application.Quit();
+            var valid = ValidMoves();
+            var validStr = "Valid choices were: ";
+            foreach (var node in valid)
+            {
+                validStr += node.Word + ", ";
+            }
+            Debug.Log(validStr);
+            ResetGameState();
         }
 
-        IEnumerable<Node> ValidMoves()
+        public IEnumerable<Node> ValidMoves()
         {
-            return CurrentNode.Children.Except(usedNodes);
+            return ValidMoves(CurrentNode);
+        }
+
+        public IEnumerable<Node> ValidMoves(Node node)
+        {
+            return node.Children.Except(usedNodes);
         }
 
         void ResetGameState()
         {
             CurrentNode = WordGraph.GetRandomStartNode();
-            WordGraph.ShuffleStartNodes();
+            Timers[1] = StartingTimer;
             currentPlayer = 0;
-            strikes[0] = 0;
-            strikes[1] = 0;
             usedNodes.Clear();
+
+            for (var i = 0; i < 2; i++)
+            {
+                Timers[i] = StartingTimer;
+                strikes[i] = 0;
+                OnTimerUpdated(i);
+            }
         }
 
         void Start()
         {
+            WordGraph.RegenerateValidStartNodes();
             ResetGameState();
+        }
+    
+        void Update()
+        {
+            Timers[currentPlayer] -= Time.deltaTime;
+            OnTimerUpdated.Invoke(currentPlayer);
+            if (Timers[currentPlayer] <= 0)
+            {
+                DeclareLoser();
+            }
         }
     }
 }

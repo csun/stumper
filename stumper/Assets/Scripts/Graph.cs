@@ -71,11 +71,6 @@ namespace Stumper
         [SerializeField]
         List<SerializableNode> serializableNodes;
 
-        public void ShuffleStartNodes()
-        {
-            validStartNodes.Recalculate();
-        }
-
         public Node Query(string word)
         {
             return wordToNode.GetValueOrDefault(word.ToUpper(), null);
@@ -248,7 +243,7 @@ namespace Stumper
             Debug.Log($"{validStartNodes.Count} valid start nodes");
         }
 
-        void RegenerateValidStartNodes()
+        public void RegenerateValidStartNodes()
         {
             var weightedList = new List<WeightedListItem<Node>>();
 
@@ -258,7 +253,11 @@ namespace Stumper
                 {
                     // WARN - you can change how this gets weighted but it may silently overflow
                     // and discard some items internally. Make sure cumulative weights are kept inbounds.
-                    weightedList.Add(new(node, Mathf.RoundToInt(node.LogFrequency)));
+                    
+                    // To match actual real life occurrence rates the log frequency would need to be used as an exponent of 10.
+                    // However, that causes the overflow mentioned above. Using a lower power lets unusual words occur but hopefully
+                    // not too frequently
+                    weightedList.Add(new(node, Mathf.RoundToInt(Mathf.Pow(2, node.LogFrequency))));
                 }
             }
 
