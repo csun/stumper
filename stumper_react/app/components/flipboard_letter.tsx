@@ -1,45 +1,58 @@
 import { Animated, Text, View, StyleSheet } from "react-native";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
+
+export enum AnimType {
+  NONE = 0,
+  OPEN_WIPE,
+  ROLL_IN,
+}
 
 export default function FlipboardLetter({
-  children,
   fontSize,
   currentWord,
+  animType,
   previousWord,
+  children,
 }: {
-  children?: ReactNode;
   fontSize: number;
   currentWord: string;
-  previousWord: string;
+  animType: AnimType;
+  previousWord?: string;
+  children?: ReactNode;
 }) {
   const styles = StyleSheet.create({
     letters: {
       fontFamily: "ChivoMono",
       fontSize: fontSize,
-      fontWeight: 600,
+      fontWeight: "600",
+      textAlign: "center",
     },
   });
 
-  if (previousWord.length == 0) {
-    const growAnim = new Animated.Value(0);
-    useEffect(() => {
-      Animated.timing(growAnim, {
-        toValue: 63,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, [growAnim]);
-
-    return (
-      <Animated.View style={{ flexBasis: growAnim, overflow: "hidden" }}>
-        <Text style={styles.letters}>{currentWord}</Text>
-      </Animated.View>
-    );
-  } else {
+  if (animType == AnimType.NONE) {
     return (
       <View>
         <Text style={styles.letters}>{currentWord}</Text>
       </View>
     );
+  }
+
+  if (animType == AnimType.OPEN_WIPE) {
+    const growAnim = new Animated.Value(0);
+
+    useEffect(() => {
+      Animated.timing(growAnim, {
+        toValue: fontSize,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }, [growAnim]);
+
+    return (
+      <Animated.View style={{ maxWidth: growAnim, overflow: "hidden" }}>
+        <Text style={styles.letters}>{currentWord}</Text>
+      </Animated.View>
+    );
+  } else {
   }
 }

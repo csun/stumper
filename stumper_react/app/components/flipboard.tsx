@@ -1,5 +1,5 @@
 import { View, StyleSheet, useWindowDimensions } from "react-native";
-import FlipboardLetter from "./flipboard_letter";
+import FlipboardLetter, { AnimType } from "./flipboard_letter";
 
 export default function Flipboard({
   currentWord,
@@ -10,7 +10,18 @@ export default function Flipboard({
 }) {
   const fontSize = useWindowDimensions().width / 12;
 
-  // TODO create mapping of letters in current word to corresponding ones in old word
+  // Possible Animations
+  // - Anagram
+  //  - All roll to next letter
+  // - Single Edit
+  //  - Single roll to next letter (if needed)
+  // - Single Addition
+  //  - Single open wipe
+  // - Default case
+  //  - Roll out to blank, roll in new
+
+  // Maybe pass down to the letter what animation is desired (open wipe or roll from letter to letter)
+
   let letters = [];
   for (var i = 0; i < currentWord.length; i++) {
     const letter = currentWord[i];
@@ -19,6 +30,7 @@ export default function Flipboard({
       <FlipboardLetter
         fontSize={fontSize}
         currentWord={letter}
+        animType={AnimType.OPEN_WIPE}
         previousWord=""
         key={key}
       >
