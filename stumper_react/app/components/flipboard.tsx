@@ -10,6 +10,7 @@ export default function Flipboard({
 }) {
   const fontSize = useWindowDimensions().width / 12;
 
+  // TODO create mapping of letters in current word to corresponding ones in old word
   let letters = [];
   for (var i = 0; i < currentWord.length; i++) {
     const letter = currentWord[i];
