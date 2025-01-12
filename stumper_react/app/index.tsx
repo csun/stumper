@@ -25,17 +25,17 @@ export default function Index() {
   const [currentWord, changeCurrentWord] = useState("STUMPER");
   const [previousWord, changePreviousWord] = useState("STMPER");
 
+  function HandleMove(word: string) {
+    changeCurrentWord(word);
+  }
+
   return (
     <View>
       <TextInput
         editable
-        onChangeText={(text) => changeCurrentWord(text)}
-        value={currentWord}
-      />
-      <TextInput
-        editable
-        onChangeText={(text) => changePreviousWord(text)}
-        value={previousWord}
+        onSubmitEditing={(e) => {
+          HandleMove(e.nativeEvent.text);
+        }}
       />
       <Flipboard currentWord={currentWord} previousWord={previousWord} />
     </View>

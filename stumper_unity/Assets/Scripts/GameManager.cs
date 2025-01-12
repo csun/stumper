@@ -60,9 +60,11 @@ namespace Stumper
                 return;
             }
 
-            CurrentNode = node;
 
             usedNodes.Add(node);
+            // NOTE - Need to do this after adding this node as used so that it is included
+            // in stumper calculations
+            CurrentNode = node;
             IncrementTimer(currentPlayer, PerMoveAddedTime);
             currentPlayer = nextPlayer;
 
