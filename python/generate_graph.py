@@ -21,13 +21,14 @@ class Graph:
         with open(filepath) as f:
             graph_contents = json.load(f)
         
-        for word, popularity in zip(graph_contents['nodes'], graph_contents['popularities']):
-            node = graph.add_word(word)
-            node.popularity = popularity
+        for raw_node in graph_contents:
+            node = graph.add_word(raw_node['word'])
+            node.popularity = raw_node['popularity']
 
-        for parent, children in enumerate(graph_contents['edges']):
-            for child in children:
-                graph.nodes[parent].children.add(graph.nodes[child])
+        for raw_node in graph_contents:
+            parent = graph.query(raw_node['word'])
+            for child_idx in raw_node['children']:
+                parent.children.add(graph.nodes[child_idx])
 
         graph.valid_start_nodes = [node for node in graph.nodes if
                                    len(node.word) == STARTING_LENGTH and
@@ -82,15 +83,12 @@ class Graph:
         for idx, node in enumerate(new_nodes):
             node.index = idx
 
-        edges = []
+        serializable_nodes = []
         for node in new_nodes:
-            node_edges = []
-            for child in node.children:
-                node_edges.append(child.index)
-            edges.append(node_edges)    
+            serializable_nodes.append({'word': node.word, 'popularity': node.popularity, 'children': [node.index for node in node.children]})
 
         with open(filepath, 'w') as f:
-            json.dump({'nodes': [node.word for node in new_nodes], 'popularities': [node.popularity for node in new_nodes], 'edges': edges}, f)
+            json.dump(serializable_nodes, f)
         
         print(f'Exported {len(new_nodes)} nodes.')
 
