@@ -12,6 +12,7 @@ const castRawGraph = rawGraph as RawNode[];
 const graph = new Graph(castRawGraph);
 
 const TIME_INITIAL = 120;
+const TIME_MAX = 120;
 const TIME_PENALTY = -15;
 const TIME_GAIN = 15;
 
@@ -34,12 +35,20 @@ export default function Index() {
     changeRemainingTimes(
       remainingTimes.map((t, i) => {
         if (i == player) {
-          return t + amount;
+          return Math.max(0, Math.min(t + amount, TIME_MAX));
         } else {
           return t;
         }
       }),
     );
+
+    if (remainingTimes[player] <= 0) {
+      TriggerLoss(player);
+    }
+  }
+
+  function TriggerLoss(player: number) {
+    // TODO
   }
 
   function StartTimer() {
