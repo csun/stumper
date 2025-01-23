@@ -4,7 +4,7 @@ const STARTING_WORD_MIN_POPULARITY = 3;
 export type Node = {
   word: string;
   popularity: number;
-  children: Node[];
+  children: Set<Node>;
 };
 
 export type RawNode = {
@@ -25,12 +25,12 @@ export default class Graph {
       this.nodes[rawNode.word] = {
         word: rawNode.word,
         popularity: rawNode.popularity,
-        children: [],
+        children: new Set<Node>(),
       };
     }
     for (const rawNode of rawData) {
       for (const childIdx of rawNode.children) {
-        this.nodes[rawNode.word].children.push(
+        this.nodes[rawNode.word].children.add(
           this.nodes[rawData[childIdx].word],
         );
       }

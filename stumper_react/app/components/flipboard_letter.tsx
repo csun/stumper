@@ -1,11 +1,7 @@
 import { Animated, Text, View, StyleSheet } from "react-native";
 import { ReactNode, useEffect, useState } from "react";
 
-export enum AnimType {
-  NONE = 0,
-  OPEN_WIPE,
-  ROLL_IN,
-}
+export type AnimType = "none" | "open_wipe" | "roll_in";
 
 export default function FlipboardLetter({
   fontSize,
@@ -29,7 +25,7 @@ export default function FlipboardLetter({
     },
   });
 
-  if (animType == AnimType.NONE) {
+  if (animType == "none") {
     return (
       <View>
         <Text style={styles.letters}>{currentWord}</Text>
@@ -37,7 +33,7 @@ export default function FlipboardLetter({
     );
   }
 
-  if (animType == AnimType.OPEN_WIPE) {
+  if (animType == "open_wipe") {
     const growAnim = new Animated.Value(0);
 
     useEffect(() => {

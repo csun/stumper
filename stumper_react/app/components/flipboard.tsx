@@ -1,5 +1,5 @@
 import { View, StyleSheet, useWindowDimensions } from "react-native";
-import FlipboardLetter, { AnimType } from "./flipboard_letter";
+import FlipboardLetter from "./flipboard_letter";
 
 export default function Flipboard({
   currentWord,
@@ -30,7 +30,7 @@ export default function Flipboard({
       <FlipboardLetter
         fontSize={fontSize}
         currentWord={letter}
-        animType={AnimType.OPEN_WIPE}
+        animType={"none"}
         previousWord=""
         key={key}
       >
