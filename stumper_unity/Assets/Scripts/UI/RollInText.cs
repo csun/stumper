@@ -11,7 +11,10 @@ namespace Stumper
         public RectMask2D Mask;
         public TMP_Text MainText;
         public float RollDuration = 1.0f;
-        [Tooltip("If greater than 0, text will roll out automatically after being displayed for a while")]
+
+        [Tooltip("If set, text will roll out automatically even if there's nothing else queued")]
+        public bool RollOutToEmpty;
+
         public float RollOutDelay;
         public AnimationCurve Curve;
 
@@ -25,9 +28,6 @@ namespace Stumper
 
             NextText = Instantiate(MainText, MainText.transform.parent);
             NextText.enabled = false;
-
-            ChangeText("+200s");
-            ChangeText("+300s");
         }
 
         IEnumerator RollInNext()
@@ -58,6 +58,12 @@ namespace Stumper
             NextText = nextNext;
             NextText.enabled = false;
 
+            // Ignore roll out delay if empty
+            if (MainText.text != "")
+            {
+                yield return new WaitForSeconds(RollOutDelay);
+            }
+
             // Only dequeue when done animating so that a call to ChangeText will not kick off a coroutine while
             // one is in progress.
             displayQueue.Dequeue();
@@ -65,6 +71,12 @@ namespace Stumper
             if (displayQueue.Count > 0)
             {
                 StartCoroutine(RollInNext());
+            }
+            // If we don't have anything else coming in but are set to roll out to empty, queue.
+            // We also need to check that we aren't already empty.
+            else if (RollOutToEmpty && MainText.text != "")
+            {
+                ChangeText("");
             }
         }
 

@@ -628,6 +628,10 @@ PrefabInstance:
       propertyPath: AssociatedPlayer
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6760200351681995474, guid: bae45f9b00c5ac94a8638ba78290f918, type: 3}
+      propertyPath: m_text
+      value: Player 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1302,6 +1306,10 @@ PrefabInstance:
       propertyPath: Manager
       value: 
       objectReference: {fileID: 1755063824}
+    - target: {fileID: 6760200351681995474, guid: bae45f9b00c5ac94a8638ba78290f918, type: 3}
+      propertyPath: m_text
+      value: Player 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

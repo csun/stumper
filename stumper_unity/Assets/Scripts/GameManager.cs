@@ -9,6 +9,7 @@ namespace Stumper
     {
         public event Action OnCurrentNodeChanged;
         public event Action<int> OnTimerUpdated;
+        public event Action<int, float> OnTimerBonusOrPenalty;
 
         public Graph WordGraph;
 
@@ -99,6 +100,7 @@ namespace Stumper
         {
             Timers[player] = Math.Min(MaxTimer, Timers[player] + amount);
             OnTimerUpdated.Invoke(player);
+            OnTimerBonusOrPenalty.Invoke(player, amount);
         }
 
         void DeclareLoser()
