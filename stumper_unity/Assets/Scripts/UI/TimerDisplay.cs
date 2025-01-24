@@ -7,6 +7,7 @@ namespace Stumper
     {
         public TMP_Text Text;
         public RollInText RollInText;
+        public RadialProgressBar ProgressBar;
 
         public int AssociatedPlayer;
         public GameManager Manager;
@@ -23,6 +24,8 @@ namespace Stumper
             {
                 return;
             }
+
+            ProgressBar.SetProgress(Manager.Timers[player] / Manager.MaxTimer);
 
             var time = Mathf.CeilToInt(Mathf.Max(Manager.Timers[player], 0));
             if (time >= 60)
