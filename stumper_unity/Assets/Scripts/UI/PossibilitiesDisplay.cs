@@ -11,6 +11,8 @@ namespace Stumper
     {
         public RollInText PossibilitiesLabel;
         public RollInText PossibilitiesNumber;
+        public RollInText StumpersLabel;
+        public RollInText StumpersNumber;
 
         public GameManager Manager;
 
@@ -24,6 +26,14 @@ namespace Stumper
             var valid = Manager.ValidMoves();
             var stumpers = 0;
 
+            foreach (var node in valid)
+            {
+                if (Manager.ValidMoves(node).Count() == 0)
+                {
+                    stumpers++;
+                }
+            }
+
             if (valid.Count() == 1)
             {
                 PossibilitiesNumber.ChangeText("1");
@@ -35,12 +45,20 @@ namespace Stumper
                 PossibilitiesLabel.ChangeText("Possibilities");
             }
 
-            foreach (var node in valid)
+            if (stumpers == 0)
             {
-                if (Manager.ValidMoves(node).Count() == 0)
-                {
-                    stumpers++;
-                }
+                StumpersNumber.ChangeText("");
+                StumpersLabel.ChangeText("");
+            }
+            else if (stumpers == 1)
+            {
+                StumpersNumber.ChangeText("1");
+                StumpersLabel.ChangeText("Possible Stumper");
+            }
+            else
+            {
+                StumpersNumber.ChangeText(stumpers.ToString());
+                StumpersLabel.ChangeText("Possible Stumpers");
             }
         }
     }
