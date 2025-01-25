@@ -17,11 +17,12 @@ namespace Stumper
             var kbd = Keyboard.current;
             kbd.onTextInput += OnTextInput;
 
-            // This may not be necessary because OnTextInput gets keycodes for enter, but I
-            // was reading that some keyboards send two keycodes (CR and LF) for enter, so I
-            // don't want it to trigger twice.
+            // Unity doesn't handle these keys gracefully in webgl builds so go through the input system instead.
             InputModule.actionsAsset["Stumper/SubmitWord"].performed += _ => Manager.SubmitWord();
             InputModule.actionsAsset["Stumper/SubmitWord"].Enable();
+
+            InputModule.actionsAsset["Stumper/Backspace"].performed += _ => Manager.HandleBackspacePressed();
+            InputModule.actionsAsset["Stumper/Backspace"].Enable();
 
             Manager.OnCandidateWordChanged += OnCandidateWordChanged;
         }
@@ -33,11 +34,7 @@ namespace Stumper
 
         private void OnTextInput(char c)
         {
-            if (c == '\b')
-            {
-                Manager.HandleBackspacePressed();
-            }
-            else if (char.IsLetter(c))
+            if (char.IsLetter(c))
             {
                 Manager.HandleLetterPressed(c);
             }

@@ -4,5 +4,6 @@ Library/
 Logs/
 Temp/
 UserSettings/
+build/
 *.csproj
 *.sln

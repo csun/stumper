@@ -24,7 +24,7 @@ namespace Stumper
 
         void Start()
         {
-            mainStartPosition = MainText.rectTransform.position;
+            mainStartPosition = MainText.rectTransform.localPosition;
 
             NextText = Instantiate(MainText, MainText.transform.parent);
             NextText.enabled = false;
@@ -45,9 +45,9 @@ namespace Stumper
                 currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / RollDuration), 1);
                 var curvedProgress = Curve.Evaluate(currentProgress);
 
-                NextText.rectTransform.position = Vector3.Lerp(
+                NextText.rectTransform.localPosition = Vector3.Lerp(
                     nextStartPosition, mainStartPosition, curvedProgress);
-                MainText.rectTransform.position = Vector3.Lerp(
+                MainText.rectTransform.localPosition = Vector3.Lerp(
                     mainStartPosition, mainEndPosition, curvedProgress);
 
                 yield return null;
