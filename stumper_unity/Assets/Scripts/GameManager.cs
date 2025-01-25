@@ -8,10 +8,21 @@ namespace Stumper
     internal class GameManager : MonoBehaviour
     {
         public event Action OnCurrentNodeChanged;
+        public event Action OnCandidateWordChanged;
         public event Action<int> OnTimerUpdated;
         public event Action<int, float> OnTimerBonusOrPenalty;
 
         public Graph WordGraph;
+        public string CandidateWord
+        {
+            get => _candidateWord;
+            private set
+            {
+                _candidateWord = value;
+                OnCandidateWordChanged();
+            }
+        }
+        string _candidateWord = "";
 
         [Tooltip("Ignored if set to 0")]
         public int MaxStrikes;
@@ -41,9 +52,25 @@ namespace Stumper
         int[] strikes = new int[2];
         HashSet<Node> usedNodes = new();
 
-        public void PlayWord(string word)
+        public void HandleBackspacePressed()
         {
-            var node = WordGraph.Query(word);
+            if (CandidateWord.Length == 0)
+            {
+                return;
+            }
+
+            CandidateWord = CandidateWord.Substring(0, CandidateWord.Length - 1);
+        }
+
+        public void HandleLetterPressed(char letter)
+        {
+            CandidateWord += char.ToUpper(letter);
+        }
+
+        public void SubmitWord()
+        {
+            var node = WordGraph.Query(CandidateWord);
+            CandidateWord = "";
 
             if (node is null)
             {
