@@ -9,6 +9,8 @@ namespace Stumper
     {
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
+        public event Action<int> OnStrikesUpdated;
+        public event Action<int> OnScoreUpdated;
         public event Action<int> OnTimerUpdated;
         public event Action<int, float> OnTimerBonusOrPenalty;
 
@@ -24,16 +26,21 @@ namespace Stumper
         }
         string _candidateWord = "";
 
-        [Tooltip("Ignored if set to 0")]
-        public int MaxStrikes;
+        public int PlayerCount;
 
+        [Tooltip("Disables timer if set to 0")]
+        public int MaxStrikes;
+        private bool strikesEnabled => MaxStrikes > 0;
+
+        [Tooltip("Disables timer if set to 0")]
+        public float MaxTimer;
+        private bool timerEnabled => MaxTimer > 0;
         public float StartingTimer;
         public float PerMoveAddedTime;
-        public float MaxTimer;
         public float StrikeTimePenalty;
 
         int currentPlayer;
-        int nextPlayer => (currentPlayer + 1) % 2;
+        int nextPlayer => (currentPlayer + 1) % PlayerCount;
 
         public Node CurrentNode
         {
@@ -47,9 +54,12 @@ namespace Stumper
         Node _currentNode;
 
         [HideInInspector]
-        public float[] Timers = new float[2];
+        public float[] Timers;
+        [HideInInspector]
+        public int[] Strikes;
+        [HideInInspector]
+        public int[] Scores;
 
-        int[] strikes = new int[2];
         HashSet<Node> usedNodes = new();
 
         public void HandleBackspacePressed()
@@ -94,6 +104,8 @@ namespace Stumper
             // in stumper calculations
             CurrentNode = node;
             IncrementTimer(currentPlayer, PerMoveAddedTime);
+            IncrementMoveCount(currentPlayer, CurrentNode.Word.Length);
+
             currentPlayer = nextPlayer;
 
             var valid = ValidMoves();
@@ -103,20 +115,22 @@ namespace Stumper
             }
         }
 
+
         void AddStrike(string message)
         {
             Debug.Log(message);
-            if (MaxStrikes > 0)
+            if (strikesEnabled)
             {
-                strikes[currentPlayer]++;
+                Strikes[currentPlayer]++;
+                OnStrikesUpdated?.Invoke(currentPlayer);
 
-                if (strikes[currentPlayer] >= MaxStrikes)
+                if (Strikes[currentPlayer] >= MaxStrikes)
                 {
                     DeclareLoser();
                 }
                 else
                 {
-                    Debug.Log($"\tYou have used {strikes[currentPlayer]} / {MaxStrikes} strikes.");
+                    Debug.Log($"\tYou have used {Strikes[currentPlayer]} / {MaxStrikes} strikes.");
                 }
             }
 
@@ -125,9 +139,20 @@ namespace Stumper
 
         void IncrementTimer(int player, float amount)
         {
+            if (!timerEnabled || amount == 0)
+            {
+                return;
+            }
+
             Timers[player] = Math.Min(MaxTimer, Timers[player] + amount);
-            OnTimerUpdated.Invoke(player);
+            OnTimerUpdated?.Invoke(player);
             OnTimerBonusOrPenalty.Invoke(player, amount);
+        }
+
+        private void IncrementMoveCount(int player, int amount)
+        {
+            Scores[player] += amount;
+            OnScoreUpdated?.Invoke(player);
         }
 
         void DeclareLoser()
@@ -155,16 +180,20 @@ namespace Stumper
 
         void ResetGameState()
         {
+            Strikes = new int[PlayerCount];
+            Timers = new float[PlayerCount];
+            Scores = new int[PlayerCount];
+
             CurrentNode = WordGraph.GetRandomStartNode();
-            Timers[1] = StartingTimer;
             currentPlayer = 0;
             usedNodes.Clear();
 
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < PlayerCount; i++)
             {
                 Timers[i] = StartingTimer;
-                strikes[i] = 0;
-                OnTimerUpdated(i);
+                OnTimerUpdated?.Invoke(i);
+                OnStrikesUpdated?.Invoke(i);
+                OnScoreUpdated?.Invoke(i);
             }
         }
 
@@ -176,8 +205,18 @@ namespace Stumper
     
         void Update()
         {
+            UpdateCurrentTimer();
+        }
+
+        void UpdateCurrentTimer()
+        {
+            if (!timerEnabled)
+            {
+                return;
+            }
+
             Timers[currentPlayer] -= Time.deltaTime;
-            OnTimerUpdated.Invoke(currentPlayer);
+            OnTimerUpdated?.Invoke(currentPlayer);
             if (Timers[currentPlayer] <= 0)
             {
                 DeclareLoser();
