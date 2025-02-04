@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4116953793427161410}
   - component: {fileID: 1789396676676396790}
   m_Layer: 5
-  m_Name: Strikes
+  m_Name: Moves
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '* * *'
+  m_text: 0 / 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 726a46a1cc6aef54ba5bc42efca98e73, type: 2}
   m_sharedMaterial: {fileID: 6900116748912114411, guid: 726a46a1cc6aef54ba5bc42efca98e73, type: 2}
@@ -147,7 +147,7 @@ GameObject:
   - component: {fileID: 3386563293529636562}
   - component: {fileID: 796686802151842516}
   m_Layer: 5
-  m_Name: Score and Strikes Display
+  m_Name: Score and Moves Display
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e01721403ce13d47afa27780b32be96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StrikesText: {fileID: 1789396676676396790}
+  MovesText: {fileID: 1789396676676396790}
   ScoreText: {fileID: 8876978257593533286}
   AssociatedPlayer: 0
   Manager: {fileID: 0}

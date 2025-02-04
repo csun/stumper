@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 5322561148697729672}
     - target: {fileID: 872190749054511160, guid: 5d18a4fa5969e8545a59d7cb8e1a2cf5, type: 3}
       propertyPath: m_Name
-      value: Strikes and Score Display
+      value: Score and Moves
       objectReference: {fileID: 0}
     - target: {fileID: 3386563293529636562, guid: 5d18a4fa5969e8545a59d7cb8e1a2cf5, type: 3}
       propertyPath: m_Pivot.x
@@ -279,12 +279,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: MoveCap
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: MaxTimer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: MaxStrikes
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: PlayerCount
@@ -295,12 +299,40 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: InitialMoveCap
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: PerMoveAddedTime
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: StrikeTimePenalty
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: WordLengthAddedMoves.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: 'WordLengthAddedMoves.Array.data[0]'
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: 'WordLengthAddedMoves.Array.data[1]'
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: 'WordLengthAddedMoves.Array.data[2]'
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: 'WordLengthAddedMoves.Array.data[3]'
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: 'WordLengthAddedMoves.Array.data[4]'
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8024773241145330086, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material

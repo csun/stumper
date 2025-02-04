@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Codice.CM.Common.Merge;
 using UnityEngine;
 
 namespace Stumper
@@ -11,6 +12,8 @@ namespace Stumper
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
         public event Action<int> OnScoreUpdated;
+        public event Action OnMoveCapUpdated;
+        public event Action<int> OnMovesUpdated;
         public event Action<int> OnTimerUpdated;
         public event Action<int, float> OnTimerBonusOrPenalty;
 
@@ -28,7 +31,7 @@ namespace Stumper
 
         public int PlayerCount;
 
-        [Tooltip("Disables timer if set to 0")]
+        [Tooltip("Disables strikes if set to 0")]
         public int MaxStrikes;
         private bool strikesEnabled => MaxStrikes > 0;
 
@@ -38,6 +41,14 @@ namespace Stumper
         public float StartingTimer;
         public float PerMoveAddedTime;
         public float StrikeTimePenalty;
+
+        [Tooltip("Disables move cap if set to 0")]
+        public int InitialMoveCap;
+        [HideInInspector]
+        public int MoveCap;
+        private bool moveCapEnabled => InitialMoveCap > 0;
+        [Tooltip("Element 0 is for starting word length, each subsequent element is for next length")]
+        public List<int> WordLengthAddedMoves;
 
         int currentPlayer;
         int nextPlayer => (currentPlayer + 1) % PlayerCount;
@@ -57,6 +68,8 @@ namespace Stumper
         public float[] Timers;
         [HideInInspector]
         public int[] Strikes;
+        [HideInInspector]
+        public int[] Moves;
         [HideInInspector]
         public int[] Scores;
 
@@ -82,29 +95,24 @@ namespace Stumper
             var node = WordGraph.Query(CandidateWord);
             CandidateWord = "";
 
-            if (node is null)
+            if (node is null || usedNodes.Contains(node) || !CurrentNode.Children.Contains(node))
             {
-                AddStrike("Invalid word.");
-                return;
-            }
-            if (usedNodes.Contains(node))
-            {
-                AddStrike("Word has already been played.");
-                return;
-            }
-            if (!CurrentNode.Children.Contains(node))
-            {
-                AddStrike("Word is not reachable from current word.");
+                RegisterMove(false);
                 return;
             }
 
+            if (CurrentNode.Word.Length < node.Word.Length && moveCapEnabled)
+            {
+                MoveCap += WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)];
+                OnMoveCapUpdated?.Invoke();
+            }
 
             usedNodes.Add(node);
             // NOTE - Need to do this after adding this node as used so that it is included
             // in stumper calculations
             CurrentNode = node;
             IncrementTimer(currentPlayer, PerMoveAddedTime);
-            IncrementMoveCount(currentPlayer, CurrentNode.Word.Length);
+            RegisterMove(true);
 
             currentPlayer = nextPlayer;
 
@@ -115,10 +123,8 @@ namespace Stumper
             }
         }
 
-
-        void AddStrike(string message)
+        private void RegisterMove(bool valid)
         {
-            Debug.Log(message);
             if (strikesEnabled)
             {
                 Strikes[currentPlayer]++;
@@ -134,7 +140,24 @@ namespace Stumper
                 }
             }
 
-            IncrementTimer(currentPlayer, -StrikeTimePenalty);
+            if (timerEnabled)
+            {
+                IncrementTimer(currentPlayer, -StrikeTimePenalty);
+            }
+
+            if (valid)
+            {
+                Scores[currentPlayer] += CurrentNode.Word.Length;
+                OnScoreUpdated?.Invoke(currentPlayer);
+            }
+
+            Moves[currentPlayer]++;
+            OnMovesUpdated?.Invoke(currentPlayer);
+
+            if (moveCapEnabled && Moves[currentPlayer] >= MoveCap)
+            {
+                DeclareLoser();
+            }
         }
 
         void IncrementTimer(int player, float amount)
@@ -149,15 +172,9 @@ namespace Stumper
             OnTimerBonusOrPenalty.Invoke(player, amount);
         }
 
-        private void IncrementMoveCount(int player, int amount)
-        {
-            Scores[player] += amount;
-            OnScoreUpdated?.Invoke(player);
-        }
-
         void DeclareLoser()
         {
-            Debug.Log($"Player {currentPlayer} has been Stumped.");
+            Debug.Log($"Player {currentPlayer} has been Stumped with score {Scores[currentPlayer]}.");
             var valid = ValidMoves();
             var validStr = "Valid choices were: ";
             foreach (var node in valid)
@@ -182,6 +199,7 @@ namespace Stumper
         {
             Strikes = new int[PlayerCount];
             Timers = new float[PlayerCount];
+            Moves = new int[PlayerCount];
             Scores = new int[PlayerCount];
 
             CurrentNode = WordGraph.GetRandomStartNode();
@@ -194,7 +212,11 @@ namespace Stumper
                 OnTimerUpdated?.Invoke(i);
                 OnStrikesUpdated?.Invoke(i);
                 OnScoreUpdated?.Invoke(i);
+                OnMovesUpdated?.Invoke(i);
             }
+
+            MoveCap = InitialMoveCap;
+            OnMoveCapUpdated?.Invoke();
         }
 
         void Start()
@@ -202,7 +224,7 @@ namespace Stumper
             WordGraph.RegenerateValidStartNodes();
             ResetGameState();
         }
-    
+
         void Update()
         {
             UpdateCurrentTimer();
