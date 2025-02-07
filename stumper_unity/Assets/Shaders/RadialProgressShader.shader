@@ -66,17 +66,59 @@ Shader "Stumper/RadialProgressShader"
                 return o;
             }
 
+            // https://www.ronja-tutorials.com/post/034-2d-sdf-basics/#rotating
+            float2 rotate(float2 samplePosition, float theta){
+                float sine, cosine;
+                sincos(theta, sine, cosine);
+                return float2(cosine * samplePosition.x + sine * samplePosition.y, cosine * samplePosition.y - sine * samplePosition.x);
+            }
+
+            // Adapted from the pie SDF here - https://iquilezles.org/articles/distfunctions2d/
+            float wedge_sdf(float2 uv, float amount)
+            {
+                // Not super elegant, but used for bounds checking and prevents some artifacts with the wedge
+                // not closing all the way when amount is very close to bounds.
+                const float EPSILON = 0.0001;
+                if (amount < EPSILON) {
+                    return -length(uv);
+                }
+                if (amount > 1 - EPSILON)
+                {
+                    return length(uv);
+                }
+
+                float theta = amount * 3.14159;
+                float2 sc = float2(sin(theta), cos(theta));
+                // Without this, the wedge is opens symmetrically. This rotation pins one side of the wedge
+                // to pointing straight up.
+                uv = rotate(uv, -theta);
+
+                uv.x = abs(uv.x);
+                float m = length(uv - sc*max(dot(uv,sc),0.0));
+                
+                // I don't fully understand the math behind the inner part of this sign expression.
+                // You need it to differentiate between inside / outside the wedge, though.
+                return -m*sign(sc.y*uv.x-sc.x*uv.y);
+            }
+
+            float open_ring_sdf(float2 uv, float outer_radius, float inner_radius, float amount) {
+                float radius = length(uv);
+                float outside_dist = radius - outer_radius;
+                float inside_dist = inner_radius - radius;
+
+                float ring_sdf = max(outside_dist, inside_dist);
+                return max(wedge_sdf(uv, 1 - amount), ring_sdf);
+            }
+
             half4 UnlitFragment(Varyings i) : SV_Target
             {
-                const float DOUBLE_PI = 2 * 3.141592653589793238462;
+                float dist = open_ring_sdf(i.uv, _OuterRadius, _InnerRadius, _Progress);
+                float smoothing_width = fwidth(dist);
+                float alpha = smoothstep(0, -smoothing_width, dist);
 
-                // TODO Look at how rounded corners library handles antialiasing - probably sdf
-                float radius = length(i.uv);
-                float progress = acos(dot(i.uv, float2(0, 1)) / radius) / DOUBLE_PI;
-                progress = i.uv.x <= 0 ? 1 - progress : progress;
+                clip(alpha);
 
-                clip(radius > _OuterRadius || radius < _InnerRadius || progress > _Progress ? -1 : 1);
-                return _Color;
+                return half4(_Color.xyz, alpha);
             }
             ENDHLSL
         }

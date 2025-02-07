@@ -312,7 +312,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: WordLengthAddedMoves.Array.size
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: 'WordLengthAddedMoves.Array.data[0]'
