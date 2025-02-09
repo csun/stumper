@@ -295,6 +295,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: InitialMoves
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: StartingTimer
       value: 0
       objectReference: {fileID: 0}

@@ -12,7 +12,6 @@ namespace Stumper
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
         public event Action<int> OnScoreUpdated;
-        public event Action OnMoveCapUpdated;
         public event Action<int> OnMovesUpdated;
         public event Action<int> OnTimerUpdated;
         public event Action<int, float> OnTimerBonusOrPenalty;
@@ -43,10 +42,8 @@ namespace Stumper
         public float StrikeTimePenalty;
 
         [Tooltip("Disables move cap if set to 0")]
-        public int InitialMoveCap;
-        [HideInInspector]
-        public int MoveCap;
-        private bool moveCapEnabled => InitialMoveCap > 0;
+        public int InitialMoves;
+        private bool MoveLimitEnabled => InitialMoves > 0;
         [Tooltip("Element 0 is for starting word length, each subsequent element is for next length")]
         public List<int> WordLengthAddedMoves;
 
@@ -101,10 +98,9 @@ namespace Stumper
                 return;
             }
 
-            if (CurrentNode.Word.Length < node.Word.Length && moveCapEnabled)
+            if (CurrentNode.Word.Length < node.Word.Length && MoveLimitEnabled)
             {
-                MoveCap += WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)];
-                OnMoveCapUpdated?.Invoke();
+                AddMoves(currentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
             }
 
             usedNodes.Add(node);
@@ -151,10 +147,9 @@ namespace Stumper
                 OnScoreUpdated?.Invoke(currentPlayer);
             }
 
-            Moves[currentPlayer]++;
-            OnMovesUpdated?.Invoke(currentPlayer);
+            AddMoves(currentPlayer, -1);
 
-            if (moveCapEnabled && Moves[currentPlayer] >= MoveCap)
+            if (MoveLimitEnabled && Moves[currentPlayer] <= 0)
             {
                 DeclareLoser();
             }
@@ -170,6 +165,12 @@ namespace Stumper
             Timers[player] = Math.Min(MaxTimer, Timers[player] + amount);
             OnTimerUpdated?.Invoke(player);
             OnTimerBonusOrPenalty.Invoke(player, amount);
+        }
+
+        void AddMoves(int player, int amount)
+        {
+            Moves[player] += amount;
+            OnMovesUpdated?.Invoke(player);
         }
 
         void DeclareLoser()
@@ -209,14 +210,12 @@ namespace Stumper
             for (var i = 0; i < PlayerCount; i++)
             {
                 Timers[i] = StartingTimer;
+                Moves[i] = InitialMoves;
                 OnTimerUpdated?.Invoke(i);
                 OnStrikesUpdated?.Invoke(i);
                 OnScoreUpdated?.Invoke(i);
                 OnMovesUpdated?.Invoke(i);
             }
-
-            MoveCap = InitialMoveCap;
-            OnMoveCapUpdated?.Invoke();
         }
 
         void Start()

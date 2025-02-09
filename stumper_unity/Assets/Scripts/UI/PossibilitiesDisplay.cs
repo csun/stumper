@@ -9,10 +9,10 @@ namespace Stumper
 {
     internal class PossibilitiesDisplay : MonoBehaviour
     {
-        public RollInText PossibilitiesLabel;
-        public RollInText PossibilitiesNumber;
-        public RollInText StumpersLabel;
-        public RollInText StumpersNumber;
+        public CountsIndicator Edits;
+        public CountsIndicator Extensions;
+        public CountsIndicator Anagrams;
+        public CountsIndicator Stumpers;
 
         public GameManager Manager;
 
@@ -23,43 +23,38 @@ namespace Stumper
 
         void OnCurrentNodeChanged()
         {
+            var current = Manager.CurrentNode;
             var valid = Manager.ValidMoves();
+            var edits = 0;
+            var anagrams = 0;
+            var extensions = 0;
             var stumpers = 0;
 
             foreach (var node in valid)
             {
+                if (current.AnagramKey == node.AnagramKey)
+                {
+                    anagrams++;
+                }
+                else if (current.Word.Length == node.Word.Length)
+                {
+                    edits++;
+                }
+                else
+                {
+                    extensions++;
+                }
+
                 if (Manager.ValidMoves(node).Count() == 0)
                 {
                     stumpers++;
                 }
             }
 
-            if (valid.Count() == 1)
-            {
-                PossibilitiesNumber.ChangeText("1");
-                PossibilitiesLabel.ChangeText("Possibility");
-            }
-            else
-            {
-                PossibilitiesNumber.ChangeText(valid.Count().ToString());
-                PossibilitiesLabel.ChangeText("Possibilities");
-            }
-
-            if (stumpers == 0)
-            {
-                StumpersNumber.ChangeText("");
-                StumpersLabel.ChangeText("");
-            }
-            else if (stumpers == 1)
-            {
-                StumpersNumber.ChangeText("1");
-                StumpersLabel.ChangeText("Possible Stumper");
-            }
-            else
-            {
-                StumpersNumber.ChangeText(stumpers.ToString());
-                StumpersLabel.ChangeText("Possible Stumpers");
-            }
+            Anagrams.UpdateCount(anagrams);
+            Edits.UpdateCount(edits);
+            Extensions.UpdateCount(extensions);
+            Stumpers.UpdateCount(stumpers);
         }
     }
 }

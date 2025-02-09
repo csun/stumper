@@ -14,9 +14,11 @@ namespace Stumper
 
         void Start()
         {
-            Manager.OnMoveCapUpdated += () => UpdateMovesText(AssociatedPlayer);
             Manager.OnMovesUpdated += UpdateMovesText;
-            Manager.OnScoreUpdated += OnMoveCountUpdated;
+            if (ScoreText != null)
+            {
+                Manager.OnScoreUpdated += OnScoreUpdated;
+            }
         }
 
         private void UpdateMovesText(int player)
@@ -26,10 +28,10 @@ namespace Stumper
                 return;
             }
 
-            MovesText.text = $"{Manager.Moves[player]} / {Manager.MoveCap}";
+            MovesText.text = $"{Manager.Moves[player]}";
         }
 
-        private void OnMoveCountUpdated(int player)
+        private void OnScoreUpdated(int player)
         {
             if (player != AssociatedPlayer)
             {
