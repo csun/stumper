@@ -6,7 +6,6 @@ namespace Stumper
     internal class TimerDisplay : MonoBehaviour
     {
         public TMP_Text Text;
-        public RollInText RollInText;
         public RadialProgressBar ProgressBar;
 
         public int AssociatedPlayer;
@@ -15,19 +14,13 @@ namespace Stumper
         void Start()
         {
             Manager.OnTimerUpdated += OnTimerUpdated;
-            Manager.OnTimerBonusOrPenalty += OnTimerBonusOrPenalty;
         }
 
-        void OnTimerUpdated(int player)
+        void OnTimerUpdated()
         {
-            if (player != AssociatedPlayer)
-            {
-                return;
-            }
+            ProgressBar.SetProgress(Manager.Timer / Manager.MaxTimer);
 
-            ProgressBar.SetProgress(Manager.Timers[player] / Manager.MaxTimer);
-
-            var time = Mathf.CeilToInt(Mathf.Max(Manager.Timers[player], 0));
+            var time = Mathf.CeilToInt(Mathf.Max(Manager.Timer, 0));
             if (time >= 60)
             {
                 var minutes = time / 60;
@@ -38,17 +31,6 @@ namespace Stumper
             {
                 Text.text = $"{time}";
             }
-        }
-
-        void OnTimerBonusOrPenalty(int player, float amount)
-        {
-            if (player != AssociatedPlayer)
-            {
-                return;
-            }
-
-            var sign = amount > 0 ? "+" : "";
-            RollInText.ChangeText($"{sign}{Mathf.CeilToInt(amount).ToString()}s");
         }
     }
 }

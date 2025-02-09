@@ -13,8 +13,7 @@ namespace Stumper
         public event Action<int> OnStrikesUpdated;
         public event Action<int> OnScoreUpdated;
         public event Action<int> OnMovesUpdated;
-        public event Action<int> OnTimerUpdated;
-        public event Action<int, float> OnTimerBonusOrPenalty;
+        public event Action OnTimerUpdated;
 
         public Graph WordGraph;
         public string CandidateWord
@@ -37,9 +36,6 @@ namespace Stumper
         [Tooltip("Disables timer if set to 0")]
         public float MaxTimer;
         private bool timerEnabled => MaxTimer > 0;
-        public float StartingTimer;
-        public float PerMoveAddedTime;
-        public float StrikeTimePenalty;
 
         [Tooltip("Disables move cap if set to 0")]
         public int InitialMoves;
@@ -62,7 +58,7 @@ namespace Stumper
         Node _currentNode;
 
         [HideInInspector]
-        public float[] Timers;
+        public float Timer;
         [HideInInspector]
         public int[] Strikes;
         [HideInInspector]
@@ -91,6 +87,7 @@ namespace Stumper
         {
             var node = WordGraph.Query(CandidateWord);
             CandidateWord = "";
+            ResetTimer();
 
             if (node is null || usedNodes.Contains(node) || !CurrentNode.Children.Contains(node))
             {
@@ -107,7 +104,6 @@ namespace Stumper
             // NOTE - Need to do this after adding this node as used so that it is included
             // in stumper calculations
             CurrentNode = node;
-            IncrementTimer(currentPlayer, PerMoveAddedTime);
             RegisterMove(true);
 
             currentPlayer = nextPlayer;
@@ -136,11 +132,6 @@ namespace Stumper
                 }
             }
 
-            if (timerEnabled)
-            {
-                IncrementTimer(currentPlayer, -StrikeTimePenalty);
-            }
-
             if (valid)
             {
                 Scores[currentPlayer] += CurrentNode.Word.Length;
@@ -153,18 +144,6 @@ namespace Stumper
             {
                 DeclareLoser();
             }
-        }
-
-        void IncrementTimer(int player, float amount)
-        {
-            if (!timerEnabled || amount == 0)
-            {
-                return;
-            }
-
-            Timers[player] = Math.Min(MaxTimer, Timers[player] + amount);
-            OnTimerUpdated?.Invoke(player);
-            OnTimerBonusOrPenalty.Invoke(player, amount);
         }
 
         void AddMoves(int player, int amount)
@@ -196,22 +175,31 @@ namespace Stumper
             return node.Children.Except(usedNodes);
         }
 
+        void ResetTimer()
+        {
+            if (!timerEnabled)
+            {
+                return;
+            }
+
+            Timer = MaxTimer;
+            OnTimerUpdated?.Invoke();
+        }
+
         void ResetGameState()
         {
             Strikes = new int[PlayerCount];
-            Timers = new float[PlayerCount];
             Moves = new int[PlayerCount];
             Scores = new int[PlayerCount];
 
+            ResetTimer();
             CurrentNode = WordGraph.GetRandomStartNode();
             currentPlayer = 0;
             usedNodes.Clear();
 
             for (var i = 0; i < PlayerCount; i++)
             {
-                Timers[i] = StartingTimer;
                 Moves[i] = InitialMoves;
-                OnTimerUpdated?.Invoke(i);
                 OnStrikesUpdated?.Invoke(i);
                 OnScoreUpdated?.Invoke(i);
                 OnMovesUpdated?.Invoke(i);
@@ -236,11 +224,19 @@ namespace Stumper
                 return;
             }
 
-            Timers[currentPlayer] -= Time.deltaTime;
-            OnTimerUpdated?.Invoke(currentPlayer);
-            if (Timers[currentPlayer] <= 0)
+            Timer -= Time.deltaTime;
+            OnTimerUpdated?.Invoke();
+            if (Timer <= 0)
             {
-                DeclareLoser();
+                AddMoves(currentPlayer, -1);
+                if (Moves[currentPlayer] <= 0)
+                {
+                    DeclareLoser();
+                }
+                else
+                {
+                    ResetTimer();
+                }
             }
         }
     }
