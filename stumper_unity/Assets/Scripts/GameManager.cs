@@ -1,13 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Codice.CM.Common.Merge;
 using UnityEngine;
 
 namespace Stumper
 {
     internal class GameManager : MonoBehaviour
     {
+        public enum CandidateWordStatus
+        {
+            PotentiallyValid,
+            Valid,
+            Invalid
+        }
+
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
@@ -22,10 +28,13 @@ namespace Stumper
             private set
             {
                 _candidateWord = value;
+                UpdateCandidateValidity();
                 OnCandidateWordChanged();
             }
         }
         string _candidateWord = "";
+        public CandidateWordStatus CandidateStatus { get; private set; }
+        List<bool> candidateUsesCharacter = new();
 
         public int PlayerCount;
 
@@ -52,6 +61,7 @@ namespace Stumper
             set
             {
                 _currentNode = value;
+                UpdateCandidateValidity();
                 OnCurrentNodeChanged.Invoke();
             }
         }
@@ -85,6 +95,11 @@ namespace Stumper
 
         public void SubmitWord()
         {
+            if (CandidateStatus == CandidateWordStatus.Invalid)
+            {
+                return;
+            }
+
             var node = WordGraph.Query(CandidateWord);
             CandidateWord = "";
             ResetTimer();
@@ -192,10 +207,10 @@ namespace Stumper
             Moves = new int[PlayerCount];
             Scores = new int[PlayerCount];
 
-            ResetTimer();
-            CurrentNode = WordGraph.GetRandomStartNode();
-            currentPlayer = 0;
+            candidateUsesCharacter.Clear();
             usedNodes.Clear();
+            currentPlayer = 0;
+            ResetTimer();
 
             for (var i = 0; i < PlayerCount; i++)
             {
@@ -203,6 +218,62 @@ namespace Stumper
                 OnStrikesUpdated?.Invoke(i);
                 OnScoreUpdated?.Invoke(i);
                 OnMovesUpdated?.Invoke(i);
+            }
+
+            CurrentNode = WordGraph.GetRandomStartNode();
+        }
+
+        void UpdateCandidateValidity()
+        {
+            var candidateLetterCounts = new Dictionary<char, int>();
+            foreach (var c in CandidateWord)
+            {
+                candidateLetterCounts.TryAdd(c, 0);
+                candidateLetterCounts[c]++;
+            }
+
+            var charactersUnaccountedFor = CandidateWord.Length;
+            candidateUsesCharacter.Clear();
+            foreach (var c in CurrentNode.Word)
+            {
+                var isUsed = false;
+
+                if (candidateLetterCounts.ContainsKey(c))
+                {
+                    candidateLetterCounts[c]--;
+                    charactersUnaccountedFor--;
+                    if (candidateLetterCounts[c] == 0)
+                    {
+                        candidateLetterCounts.Remove(c);
+                    }
+                    isUsed = true;
+                }
+
+                candidateUsesCharacter.Add(isUsed);
+            }
+
+            // Potentially valid - shorter length, max one candidate letter not accounted for
+            if (CandidateWord.Length < CurrentNode.Word.Length && charactersUnaccountedFor <= 1)
+            {
+                CandidateStatus = CandidateWordStatus.PotentiallyValid;
+            }
+            // Edit - same length, one candidate letter not accounted for
+            // Anagram - same length, no candidate letters unaccounted for, not same word
+            else if (CandidateWord.Length == CurrentNode.Word.Length &&
+                    charactersUnaccountedFor <= 1 &&
+                    CandidateWord != CurrentNode.Word)
+            {
+                CandidateStatus = CandidateWordStatus.Valid;
+            }
+            // Extension - length + 1, one candidate letter not accounted for
+            else if (CandidateWord.Length == CurrentNode.Word.Length + 1 &&
+                    charactersUnaccountedFor == 1)
+            {
+                CandidateStatus = CandidateWordStatus.Valid;
+            }
+            else
+            {
+                CandidateStatus = CandidateWordStatus.Invalid;
             }
         }
 

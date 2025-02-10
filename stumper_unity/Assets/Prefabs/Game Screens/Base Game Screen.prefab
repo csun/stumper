@@ -1055,14 +1055,9 @@ MonoBehaviour:
   PlayerCount: 2
   MaxStrikes: 0
   MaxTimer: 120
-  StartingTimer: 120
-  PerMoveAddedTime: 15
-  StrikeTimePenalty: 15
   InitialMoves: 0
   WordLengthAddedMoves: 
-  Timers:
-  - 0
-  - 0
+  Timer: 0
   Strikes: 
   Moves: 
   Scores: 
@@ -1303,6 +1298,7 @@ GameObject:
   - component: {fileID: 8109483802286498608}
   - component: {fileID: 7307618235889504597}
   - component: {fileID: 6167526959160940342}
+  - component: {fileID: 6745491388931262999}
   m_Layer: 5
   m_Name: Info Text
   m_TagString: Untagged
@@ -1357,7 +1353,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter a word...
+  m_text: Add one character, change one character, or enter an anagram...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 726a46a1cc6aef54ba5bc42efca98e73, type: 2}
   m_sharedMaterial: {fileID: 6900116748912114411, guid: 726a46a1cc6aef54ba5bc42efca98e73, type: 2}
@@ -1428,6 +1424,22 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6745491388931262999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8299776161757474276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c77564906d57b940afa786a1f866380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Text: {fileID: 6167526959160940342}
+  AwaitingInputMessage: Add one character, change one character, or enter an anagram...
+  InvalidMessage: Invalid word!
+  Manager: {fileID: 7897223290935784190}
 --- !u!1 &8730810471313803651
 GameObject:
   m_ObjectHideFlags: 0
