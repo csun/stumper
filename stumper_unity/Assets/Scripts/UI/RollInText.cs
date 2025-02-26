@@ -12,6 +12,7 @@ namespace Stumper
         public RectMask2D Mask;
         public TMP_Text MainText;
         public float RollDuration = 1.0f;
+        public float RollDurationVariation = 0;
 
         public bool RollInFromBottom;
         [Tooltip("If set, text will roll out automatically even if there's nothing else queued")]
@@ -21,6 +22,7 @@ namespace Stumper
         public bool FlipFlop;
 
         public float RollOutDelay;
+        public float RollOutDelayVariation = 0;
         public AnimationCurve Curve;
 
         private Vector3 mainStartPosition;
@@ -44,6 +46,7 @@ namespace Stumper
             var offset = Mask.rectTransform.rect.height;
             var nextStartPosition = mainStartPosition + Vector3.up * offset;
             var mainEndPosition = mainStartPosition - Vector3.up * offset;
+            var chosenDuration = RollDuration + UnityEngine.Random.Range(-RollDurationVariation, RollDurationVariation);
 
             if (RollInFromBottom)
             {
@@ -54,7 +57,7 @@ namespace Stumper
 
             while (currentProgress < 1)
             {
-                currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / RollDuration), 1);
+                currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / chosenDuration), 1);
                 var curvedProgress = Curve.Evaluate(currentProgress);
 
                 nextText.rectTransform.localPosition = Vector3.Lerp(
@@ -73,7 +76,8 @@ namespace Stumper
             // Ignore roll out delay if empty
             if (MainText.text != "")
             {
-                yield return new WaitForSeconds(RollOutDelay);
+                yield return new WaitForSeconds(
+                    RollOutDelay + UnityEngine.Random.Range(-RollOutDelayVariation, RollOutDelayVariation));
             }
 
             // Only dequeue when done animating so that a call to ChangeText will not kick off a coroutine while
