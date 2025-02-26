@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,12 +15,20 @@ namespace Stumper
             Invalid
         }
 
+        public enum MenuState
+        {
+            Gameplay,
+            Menu,
+            GameSummary
+        }
+
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
         public event Action<int> OnScoreUpdated;
         public event Action<int> OnMovesUpdated;
         public event Action OnTimerUpdated;
+        public event Action OnMenuStateChanged;
 
         public Graph WordGraph;
         public string CandidateWord
@@ -36,6 +45,19 @@ namespace Stumper
         public CandidateWordStatus CandidateStatus { get; private set; }
         public string CandidateInvalidReason { get; private set; }
         List<bool> candidateUsesCharacter = new();
+
+        public MenuState CurrentMenuState
+        {
+            get => _currentMenuState;
+
+            private set
+            {
+                _currentMenuState = value;
+                OnMenuStateChanged?.Invoke();
+            }
+        }
+        private MenuState _currentMenuState;
+        public MenuAnimator MenuAnimator;
 
         public int PlayerCount;
 
@@ -79,8 +101,23 @@ namespace Stumper
 
         HashSet<Node> usedNodes = new();
 
+        public void ToggleMenu()
+        {
+            if (CurrentMenuState == MenuState.Gameplay)
+            {
+                CurrentMenuState = MenuState.Menu;
+                MenuAnimator.OpenMenu();
+            }
+            else
+            {
+                CurrentMenuState = MenuState.Gameplay;
+                MenuAnimator.CloseMenu();
+            }
+        }
+
         public void HandleBackspacePressed()
         {
+            if (CurrentMenuState != MenuState.Gameplay) { return; }
             if (CandidateWord.Length == 0)
             {
                 return;
@@ -91,11 +128,13 @@ namespace Stumper
 
         public void HandleLetterPressed(char letter)
         {
+            if (CurrentMenuState != MenuState.Gameplay) { return; }
             CandidateWord += char.ToUpper(letter);
         }
 
         public void SubmitWord()
         {
+            if (CurrentMenuState != MenuState.Gameplay) { return; }
             if (CandidateStatus == CandidateWordStatus.Invalid)
             {
                 return;
@@ -294,6 +333,7 @@ namespace Stumper
 
         void Update()
         {
+            if (CurrentMenuState != MenuState.Gameplay) { return; }
             UpdateCurrentTimer();
         }
 
@@ -319,5 +359,6 @@ namespace Stumper
                 }
             }
         }
+
     }
 }
