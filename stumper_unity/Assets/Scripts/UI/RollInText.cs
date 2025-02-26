@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 namespace Stumper
 {
@@ -12,40 +13,51 @@ namespace Stumper
         public TMP_Text MainText;
         public float RollDuration = 1.0f;
 
+        public bool RollInFromBottom;
         [Tooltip("If set, text will roll out automatically even if there's nothing else queued")]
         public bool RollOutToEmpty;
+
+        [Tooltip("If set, text will alternate roll directions")]
+        public bool FlipFlop;
 
         public float RollOutDelay;
         public AnimationCurve Curve;
 
         private Vector3 mainStartPosition;
-        private TMP_Text NextText;
+        private TMP_Text nextText;
         private Queue<string> displayQueue = new();
 
         void Start()
         {
             mainStartPosition = MainText.rectTransform.localPosition;
 
-            NextText = Instantiate(MainText, MainText.transform.parent);
-            NextText.enabled = false;
+            nextText = Instantiate(MainText, MainText.transform.parent);
+            nextText.enabled = false;
         }
 
         IEnumerator RollInNext()
         {
-            NextText.text = displayQueue.Peek();
-            NextText.enabled = true;
+            nextText.text = displayQueue.Peek();
+            nextText.enabled = true;
 
             var currentProgress = 0.0f;
             var offset = Mask.rectTransform.rect.height;
             var nextStartPosition = mainStartPosition + Vector3.up * offset;
             var mainEndPosition = mainStartPosition - Vector3.up * offset;
 
+            if (RollInFromBottom)
+            {
+                var tmp = nextStartPosition;
+                nextStartPosition = mainEndPosition;
+                mainEndPosition = tmp;
+            }
+
             while (currentProgress < 1)
             {
                 currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / RollDuration), 1);
                 var curvedProgress = Curve.Evaluate(currentProgress);
 
-                NextText.rectTransform.localPosition = Vector3.Lerp(
+                nextText.rectTransform.localPosition = Vector3.Lerp(
                     nextStartPosition, mainStartPosition, curvedProgress);
                 MainText.rectTransform.localPosition = Vector3.Lerp(
                     mainStartPosition, mainEndPosition, curvedProgress);
@@ -54,9 +66,9 @@ namespace Stumper
             }
 
             var nextNext = MainText;
-            MainText = NextText;
-            NextText = nextNext;
-            NextText.enabled = false;
+            MainText = nextText;
+            nextText = nextNext;
+            nextText.enabled = false;
 
             // Ignore roll out delay if empty
             if (MainText.text != "")
@@ -67,6 +79,10 @@ namespace Stumper
             // Only dequeue when done animating so that a call to ChangeText will not kick off a coroutine while
             // one is in progress.
             displayQueue.Dequeue();
+            if (FlipFlop)
+            {
+                RollInFromBottom = !RollInFromBottom;
+            }
 
             if (displayQueue.Count > 0)
             {
@@ -90,6 +106,22 @@ namespace Stumper
             {
                 StartCoroutine(RollInNext());
             }
+        }
+
+        public void ChangeNumericalValue(int newVal)
+        {
+            var currVal = 0;
+            Int32.TryParse(MainText.text, out currVal);
+
+            var diff = newVal - currVal;
+            if (diff == 0)
+            {
+                return;
+            }
+
+            var diffString = $"{(diff > 0 ? "+" : "")}{diff}";
+            ChangeText(diffString);
+            ChangeText(newVal.ToString());
         }
     }
 }

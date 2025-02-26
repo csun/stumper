@@ -6,7 +6,7 @@ namespace Stumper
 {
     internal class ScoreAndMovesDisplay : MonoBehaviour
     {
-        public TMP_Text MovesText;
+        public RollInText MovesText;
         public RollInText ScoreText;
 
         public int AssociatedPlayer;
@@ -28,7 +28,7 @@ namespace Stumper
                 return;
             }
 
-            MovesText.text = $"{Manager.Moves[player]}";
+            MovesText.ChangeNumericalValue(Manager.Moves[player]);
         }
 
         private void OnScoreUpdated(int player)
@@ -38,7 +38,7 @@ namespace Stumper
                 return;
             }
 
-            ScoreText.ChangeText(Manager.Scores[player].ToString());
+            ScoreText.ChangeNumericalValue(Manager.Scores[player]);
         }
     }
 }

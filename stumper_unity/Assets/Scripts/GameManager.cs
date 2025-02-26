@@ -34,6 +34,7 @@ namespace Stumper
         }
         string _candidateWord = "";
         public CandidateWordStatus CandidateStatus { get; private set; }
+        public string CandidateInvalidReason { get; private set; }
         List<bool> candidateUsesCharacter = new();
 
         public int PlayerCount;
@@ -106,31 +107,21 @@ namespace Stumper
 
             if (node is null || usedNodes.Contains(node) || !CurrentNode.Children.Contains(node))
             {
-                RegisterMove(false);
-                return;
+                HandleInvalidMove();
             }
-
-            if (CurrentNode.Word.Length < node.Word.Length && MoveLimitEnabled)
+            else
             {
-                AddMoves(currentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
+                HandleValidMove(node);
             }
 
-            usedNodes.Add(node);
-            // NOTE - Need to do this after adding this node as used so that it is included
-            // in stumper calculations
-            CurrentNode = node;
-            RegisterMove(true);
 
-            currentPlayer = nextPlayer;
-
-            var valid = ValidMoves();
-            if (valid.Count() == 0)
+            if (MoveLimitEnabled && Moves[currentPlayer] <= 0)
             {
                 DeclareLoser();
             }
         }
 
-        private void RegisterMove(bool valid)
+        private void HandleInvalidMove()
         {
             if (strikesEnabled)
             {
@@ -147,15 +138,33 @@ namespace Stumper
                 }
             }
 
-            if (valid)
-            {
-                Scores[currentPlayer] += CurrentNode.Word.Length;
-                OnScoreUpdated?.Invoke(currentPlayer);
-            }
-
             AddMoves(currentPlayer, -1);
 
-            if (MoveLimitEnabled && Moves[currentPlayer] <= 0)
+        }
+
+        private void HandleValidMove(Node nextNode)
+        {
+            Scores[currentPlayer] += CurrentNode.Word.Length;
+            OnScoreUpdated?.Invoke(currentPlayer);
+
+            if (CurrentNode.Word.Length < nextNode.Word.Length && MoveLimitEnabled)
+            {
+                AddMoves(currentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
+            }
+            else
+            {
+                AddMoves(currentPlayer, -1);
+            }
+
+            usedNodes.Add(nextNode);
+
+            // NOTE - Need to do this after adding this node as used so that it is included
+            // in stumper calculations
+            CurrentNode = nextNode;
+            currentPlayer = nextPlayer;
+
+            var valid = ValidMoves();
+            if (valid.Count() == 0)
             {
                 DeclareLoser();
             }
