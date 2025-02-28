@@ -89,6 +89,7 @@ namespace Stumper
             }
         }
         Node _currentNode;
+        Node roundStartingNode;
 
         [HideInInspector]
         public float Timer;
@@ -158,6 +159,13 @@ namespace Stumper
             {
                 DeclareLoser();
             }
+        }
+
+        public void Restart()
+        {
+            ResetGameState(false);
+            MenuAnimator.CloseMenu();
+            CurrentMenuState = MenuState.Gameplay;
         }
 
         private void HandleInvalidMove()
@@ -249,7 +257,7 @@ namespace Stumper
             OnTimerUpdated?.Invoke();
         }
 
-        void ResetGameState()
+        void ResetGameState(bool newWord = true)
         {
             Strikes = new int[PlayerCount];
             Moves = new int[PlayerCount];
@@ -268,7 +276,15 @@ namespace Stumper
                 OnMovesUpdated?.Invoke(i);
             }
 
-            CurrentNode = WordGraph.GetRandomStartNode();
+            if (newWord)
+            {
+                CurrentNode = WordGraph.GetRandomStartNode();
+                roundStartingNode = CurrentNode;
+            }
+            else
+            {
+                CurrentNode = roundStartingNode;
+            }
         }
 
         void UpdateCandidateValidity()
