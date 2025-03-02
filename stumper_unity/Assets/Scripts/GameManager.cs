@@ -284,6 +284,7 @@ namespace Stumper
             candidateUsesCharacter.Clear();
             usedNodes.Clear();
             CurrentPlayer = 0;
+            TimerPaused = true;
             ResetTimer();
 
             for (var i = 0; i < PlayerCount; i++)

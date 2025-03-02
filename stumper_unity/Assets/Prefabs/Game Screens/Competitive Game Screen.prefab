@@ -74,7 +74,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3083328884749629659, guid: bae45f9b00c5ac94a8638ba78290f918, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -26
       objectReference: {fileID: 0}
     - target: {fileID: 3083328884749629659, guid: bae45f9b00c5ac94a8638ba78290f918, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -497,7 +497,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7737884550627420814, guid: 5fd324451cb77fa4d9fcdf3c7817f3e9, type: 3}
       propertyPath: m_text
-      value: P2 Moves
+      value: Player 2
       objectReference: {fileID: 0}
     - target: {fileID: 8514535105326234854, guid: 5fd324451cb77fa4d9fcdf3c7817f3e9, type: 3}
       propertyPath: m_Material

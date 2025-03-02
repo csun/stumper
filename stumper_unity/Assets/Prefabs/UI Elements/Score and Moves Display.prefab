@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovesText: {fileID: 42348493124583755}
   ScoreText: {fileID: 8876978257593533286}
+  ActivePlayerUnderline: {fileID: 0}
   AssociatedPlayer: 0
   Manager: {fileID: 0}
 --- !u!1 &3178390848095905059
@@ -430,7 +431,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelay
-      value: 1.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutToEmpty
@@ -579,7 +580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelay
-      value: 1.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutToEmpty
