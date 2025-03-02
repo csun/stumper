@@ -22,12 +22,14 @@ namespace Stumper
             GameSummary
         }
 
+        public event Action OnCurrentPlayerChanged;
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
         public event Action<int> OnScoreUpdated;
         public event Action<int> OnMovesUpdated;
         public event Action OnTimerUpdated;
+        public event Action OnTimerPauseChanged;
         public event Action OnMenuStateChanged;
 
         public Graph WordGraph;
@@ -75,8 +77,17 @@ namespace Stumper
         [Tooltip("Element 0 is for starting word length, each subsequent element is for next length")]
         public List<int> WordLengthAddedMoves;
 
-        int currentPlayer;
-        int nextPlayer => (currentPlayer + 1) % PlayerCount;
+        public int CurrentPlayer
+        {
+            get => _currentPlayer;
+            private set
+            {
+                _currentPlayer = value;
+                OnCurrentPlayerChanged?.Invoke();
+            }
+        }
+        int _currentPlayer;
+        int nextPlayer => (CurrentPlayer + 1) % PlayerCount;
 
         public Node CurrentNode
         {
@@ -93,6 +104,8 @@ namespace Stumper
 
         [HideInInspector]
         public float Timer;
+        [HideInInspector]
+        public bool TimerPaused;
         [HideInInspector]
         public int[] Strikes;
         [HideInInspector]
@@ -114,6 +127,11 @@ namespace Stumper
                 CurrentMenuState = MenuState.Gameplay;
                 MenuAnimator.CloseMenu();
             }
+        }
+        public void ToggleTimerPause()
+        {
+            TimerPaused = !TimerPaused;
+            OnTimerPauseChanged?.Invoke();
         }
 
         public void HandleBackspacePressed()
@@ -155,7 +173,7 @@ namespace Stumper
             }
 
 
-            if (MoveLimitEnabled && Moves[currentPlayer] <= 0)
+            if (MoveLimitEnabled && Moves[CurrentPlayer] <= 0)
             {
                 DeclareLoser();
             }
@@ -172,35 +190,35 @@ namespace Stumper
         {
             if (strikesEnabled)
             {
-                Strikes[currentPlayer]++;
-                OnStrikesUpdated?.Invoke(currentPlayer);
+                Strikes[CurrentPlayer]++;
+                OnStrikesUpdated?.Invoke(CurrentPlayer);
 
-                if (Strikes[currentPlayer] >= MaxStrikes)
+                if (Strikes[CurrentPlayer] >= MaxStrikes)
                 {
                     DeclareLoser();
                 }
                 else
                 {
-                    Debug.Log($"\tYou have used {Strikes[currentPlayer]} / {MaxStrikes} strikes.");
+                    Debug.Log($"\tYou have used {Strikes[CurrentPlayer]} / {MaxStrikes} strikes.");
                 }
             }
 
-            AddMoves(currentPlayer, -1);
+            AddMoves(CurrentPlayer, -1);
 
         }
 
         private void HandleValidMove(Node nextNode)
         {
-            Scores[currentPlayer] += CurrentNode.Word.Length;
-            OnScoreUpdated?.Invoke(currentPlayer);
+            Scores[CurrentPlayer] += CurrentNode.Word.Length;
+            OnScoreUpdated?.Invoke(CurrentPlayer);
 
             if (CurrentNode.Word.Length < nextNode.Word.Length && MoveLimitEnabled)
             {
-                AddMoves(currentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
+                AddMoves(CurrentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
             }
             else
             {
-                AddMoves(currentPlayer, -1);
+                AddMoves(CurrentPlayer, -1);
             }
 
             usedNodes.Add(nextNode);
@@ -208,7 +226,7 @@ namespace Stumper
             // NOTE - Need to do this after adding this node as used so that it is included
             // in stumper calculations
             CurrentNode = nextNode;
-            currentPlayer = nextPlayer;
+            CurrentPlayer = nextPlayer;
 
             var valid = ValidMoves();
             if (valid.Count() == 0)
@@ -223,9 +241,9 @@ namespace Stumper
             OnMovesUpdated?.Invoke(player);
         }
 
-        void DeclareLoser()
+        public void DeclareLoser()
         {
-            Debug.Log($"Player {currentPlayer} has been Stumped with score {Scores[currentPlayer]}.");
+            Debug.Log($"Player {CurrentPlayer} has been Stumped with score {Scores[CurrentPlayer]}.");
             var valid = ValidMoves();
             var validStr = "Valid choices were: ";
             foreach (var node in valid)
@@ -265,7 +283,7 @@ namespace Stumper
 
             candidateUsesCharacter.Clear();
             usedNodes.Clear();
-            currentPlayer = 0;
+            CurrentPlayer = 0;
             ResetTimer();
 
             for (var i = 0; i < PlayerCount; i++)
@@ -355,7 +373,7 @@ namespace Stumper
 
         void UpdateCurrentTimer()
         {
-            if (!timerEnabled)
+            if (!timerEnabled || TimerPaused || CurrentMenuState != MenuState.Gameplay)
             {
                 return;
             }
@@ -364,8 +382,8 @@ namespace Stumper
             OnTimerUpdated?.Invoke();
             if (Timer <= 0)
             {
-                AddMoves(currentPlayer, -1);
-                if (Moves[currentPlayer] <= 0)
+                AddMoves(CurrentPlayer, -1);
+                if (Moves[CurrentPlayer] <= 0)
                 {
                     DeclareLoser();
                 }

@@ -198,6 +198,10 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2551819546705159907, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2634772905973830563, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
@@ -214,11 +218,31 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3584900910292424954, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: Action.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 439485453401523514}
+    - target: {fileID: 3584900910292424954, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: Action.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LoadVersus
+      objectReference: {fileID: 0}
+    - target: {fileID: 3584900910292424954, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: Action.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Stumper.ModeLoader, Stumper.Runtime
+      objectReference: {fileID: 0}
     - target: {fileID: 3611469527580317372, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3666678992595201787, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4703902307451671804, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4945428483152426499, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
@@ -235,6 +259,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5961395391461729893, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6136992623067561499, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
@@ -356,6 +384,17 @@ PrefabInstance:
       addedObject: {fileID: 2764783315049949493}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+--- !u!114 &439485453401523514 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2475931029382393164, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+  m_PrefabInstance: {fileID: 2613525497522907254}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79f92890b41d72f4e8621b9db8d5b35e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5322561148697729672 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7897223290935784190, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
