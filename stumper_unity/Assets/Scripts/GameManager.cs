@@ -186,11 +186,14 @@ namespace Stumper
             }
         }
 
+        public void NewGame()
+        {
+            ResetGameState();
+        }
+
         public void Restart()
         {
             ResetGameState(false);
-            MenuAnimator.CloseMenu();
-            CurrentMenuState = MenuState.Gameplay;
         }
 
         private void HandleInvalidMove()
@@ -250,15 +253,15 @@ namespace Stumper
 
         public void DeclareLoser()
         {
-            Debug.Log($"Player {CurrentPlayer} has been Stumped with score {Scores[CurrentPlayer]}.");
             var valid = ValidMoves();
             var validStr = "Valid choices were: ";
             foreach (var node in valid)
             {
                 validStr += node.Word + ", ";
             }
-            Debug.Log(validStr);
-            ResetGameState();
+
+            CurrentMenuState = MenuState.GameSummary;
+            MenuAnimator.OpenSummary();
         }
 
         public IEnumerable<Node> ValidMoves()
@@ -310,6 +313,9 @@ namespace Stumper
             {
                 CurrentNode = roundStartingNode;
             }
+
+            CurrentMenuState = MenuState.Gameplay;
+            MenuAnimator.CloseMenu();
         }
 
         void UpdateCandidateValidity()
@@ -369,7 +375,7 @@ namespace Stumper
         void Start()
         {
             WordGraph.RegenerateValidStartNodes();
-            ResetGameState();
+            NewGame();
         }
 
         void Update()
