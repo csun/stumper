@@ -128,6 +128,13 @@ namespace Stumper
                 MenuAnimator.CloseMenu();
             }
         }
+
+        public void OpenHelp()
+        {
+            CurrentMenuState = MenuState.Menu;
+            MenuAnimator.OpenHelp();
+        }
+
         public void ToggleTimerPause()
         {
             TimerPaused = !TimerPaused;

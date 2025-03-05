@@ -13,6 +13,10 @@ namespace Stumper
         private float currentMenuOpenProgress;
         private bool shouldOpenMenu;
 
+        public GameObject MenuContent;
+        public GameObject SummaryContent;
+        public GameObject HelpContent;
+
         private float gameLocalY;
 
         void Start()
@@ -20,15 +24,35 @@ namespace Stumper
             gameLocalY = ContentTransform.localPosition.y;
         }
 
+        public void OpenSummary()
+        {
+            ShowContent(SummaryContent);
+        }
+
+        public void OpenHelp()
+        {
+            ShowContent(HelpContent);
+        }
+
         public void OpenMenu()
         {
-            shouldOpenMenu = true;
-            StartAnim();
+            ShowContent(MenuContent);
         }
 
         public void CloseMenu()
         {
             shouldOpenMenu = false;
+            StartAnim();
+        }
+
+        private void ShowContent(GameObject content)
+        {
+            MenuContent.SetActive(false);
+            SummaryContent.SetActive(false);
+            HelpContent.SetActive(false);
+
+            content.SetActive(true);
+            shouldOpenMenu = true;
             StartAnim();
         }
 
