@@ -27,24 +27,24 @@ namespace Stumper
             }
         }
 
-        private void UpdateMovesText(int player)
+        private void UpdateMovesText(int player, int oldMoves)
         {
             if (player != AssociatedPlayer)
             {
                 return;
             }
 
-            MovesText.ChangeNumericalValue(Manager.Moves[player]);
+            MovesText.ChangeNumericalValue(Manager.Moves[player], oldMoves);
         }
 
-        private void OnScoreUpdated(int player)
+        private void OnScoreUpdated(int player, int oldScore)
         {
             if (player != AssociatedPlayer)
             {
                 return;
             }
 
-            ScoreText.ChangeNumericalValue(Manager.Scores[player]);
+            ScoreText.ChangeNumericalValue(Manager.Scores[player], oldScore);
         }
 
         private void OnPlayerChanged()

@@ -13,6 +13,8 @@ namespace Stumper
         public TMP_Text MainText;
         public float RollDuration = 1.0f;
         public float RollDurationVariation = 0;
+        [Tooltip("If set, cancels existing queue and forces immediate animation start when new thing is queued")]
+        public bool ForceStart;
 
         public bool RollInFromBottom;
         [Tooltip("If set, text will roll out automatically even if there's nothing else queued")]
@@ -28,6 +30,9 @@ namespace Stumper
         private Vector3 mainStartPosition;
         private TMP_Text nextText;
         private Queue<string> displayQueue = new();
+        private int nextAnimId = 0;
+        private int currentAnim = 0;
+        private int skipToAnim = 0;
 
         void Start()
         {
@@ -37,8 +42,13 @@ namespace Stumper
             nextText.enabled = false;
         }
 
-        IEnumerator RollInNext()
+        IEnumerator RollInNext(int id)
         {
+            while (id != currentAnim)
+            {
+                yield return null;
+            }
+
             nextText.text = displayQueue.Peek();
             nextText.enabled = true;
 
@@ -57,6 +67,10 @@ namespace Stumper
 
             while (currentProgress < 1)
             {
+                if (skipToAnim > id)
+                {
+                    break;
+                }
                 currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / chosenDuration), 1);
                 var curvedProgress = Curve.Evaluate(currentProgress);
 
@@ -76,25 +90,28 @@ namespace Stumper
             // Ignore roll out delay if empty
             if (MainText.text != "")
             {
-                yield return new WaitForSeconds(
-                    RollOutDelay + UnityEngine.Random.Range(-RollOutDelayVariation, RollOutDelayVariation));
+                var endTime = Time.time + RollOutDelay + UnityEngine.Random.Range(-RollOutDelayVariation, RollOutDelayVariation);
+                while (Time.time < endTime)
+                {
+                    if (skipToAnim > id)
+                    {
+                        break;
+                    }
+                    yield return null;
+                }
             }
 
-            // Only dequeue when done animating so that a call to ChangeText will not kick off a coroutine while
-            // one is in progress.
-            displayQueue.Dequeue();
             if (FlipFlop)
             {
                 RollInFromBottom = !RollInFromBottom;
             }
 
-            if (displayQueue.Count > 0)
-            {
-                StartCoroutine(RollInNext());
-            }
+            displayQueue.Dequeue();
+            currentAnim++;
+
             // If we don't have anything else coming in but are set to roll out to empty, queue.
             // We also need to check that we aren't already empty.
-            else if (RollOutToEmpty && MainText.text != "")
+            if (displayQueue.Count == 0 && RollOutToEmpty && MainText.text != "")
             {
                 ChangeText("");
             }
@@ -103,29 +120,31 @@ namespace Stumper
         public void ChangeText(string text)
         {
             displayQueue.Enqueue(text);
-
-            // Only start the coroutine if there is only one item in the queue - if there are
-            // multiple, the coroutine will dispatch the next call itself
-            if (displayQueue.Count == 1)
+            if (ForceStart)
             {
-                StartCoroutine(RollInNext());
+                skipToAnim = nextAnimId;
             }
+            StartCoroutine(RollInNext(nextAnimId++));
         }
 
-        public void ChangeNumericalValue(int newVal)
+        public void ChangeNumericalValue(int newVal, int oldVal)
         {
-            var currVal = 0;
-            Int32.TryParse(MainText.text, out currVal);
-
-            var diff = newVal - currVal;
+            var diff = newVal - oldVal;
             if (diff == 0)
             {
                 return;
             }
 
             var diffString = $"{(diff > 0 ? "+" : "")}{diff}";
-            ChangeText(diffString);
-            ChangeText(newVal.ToString());
+
+            if (ForceStart)
+            {
+                skipToAnim = nextAnimId;
+            }
+            displayQueue.Enqueue(diffString);
+            displayQueue.Enqueue(newVal.ToString());
+            StartCoroutine(RollInNext(nextAnimId++));
+            StartCoroutine(RollInNext(nextAnimId++));
         }
     }
 }

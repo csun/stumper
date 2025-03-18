@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace Stumper
 {
@@ -26,8 +27,8 @@ namespace Stumper
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
         public event Action<int> OnStrikesUpdated;
-        public event Action<int> OnScoreUpdated;
-        public event Action<int> OnMovesUpdated;
+        public event Action<int, int> OnScoreUpdated;
+        public event Action<int, int> OnMovesUpdated;
         public event Action OnTimerUpdated;
         public event Action OnTimerPauseChanged;
         public event Action OnMenuStateChanged;
@@ -219,8 +220,9 @@ namespace Stumper
 
         private void HandleValidMove(Node nextNode)
         {
+            var oldScore = Scores[CurrentPlayer];
             Scores[CurrentPlayer] += CurrentNode.Word.Length;
-            OnScoreUpdated?.Invoke(CurrentPlayer);
+            OnScoreUpdated?.Invoke(CurrentPlayer, oldScore);
 
             if (CurrentNode.Word.Length < nextNode.Word.Length && MoveLimitEnabled)
             {
@@ -247,8 +249,9 @@ namespace Stumper
 
         void AddMoves(int player, int amount)
         {
+            var oldMoves = Moves[player];
             Moves[player] += amount;
-            OnMovesUpdated?.Invoke(player);
+            OnMovesUpdated?.Invoke(player, oldMoves);
         }
 
         public void DeclareLoser()
@@ -287,10 +290,6 @@ namespace Stumper
 
         void ResetGameState(bool newWord = true)
         {
-            Strikes = new int[PlayerCount];
-            Moves = new int[PlayerCount];
-            Scores = new int[PlayerCount];
-
             candidateUsesCharacter.Clear();
             usedNodes.Clear();
             CurrentPlayer = 0;
@@ -298,10 +297,15 @@ namespace Stumper
 
             for (var i = 0; i < PlayerCount; i++)
             {
+                var oldMoves = Moves[i];
+                var oldScore = Scores[i];
                 Moves[i] = InitialMoves;
+                Scores[i] = 0;
+                Strikes[i] = 0;
+
                 OnStrikesUpdated?.Invoke(i);
-                OnScoreUpdated?.Invoke(i);
-                OnMovesUpdated?.Invoke(i);
+                OnScoreUpdated?.Invoke(i, oldScore);
+                OnMovesUpdated?.Invoke(i, oldMoves);
             }
 
             if (newWord)
@@ -375,6 +379,9 @@ namespace Stumper
         void Start()
         {
             WordGraph.RegenerateValidStartNodes();
+            Scores = new int[PlayerCount];
+            Moves = new int[PlayerCount];
+            Strikes = new int[PlayerCount];
             NewGame();
         }
 

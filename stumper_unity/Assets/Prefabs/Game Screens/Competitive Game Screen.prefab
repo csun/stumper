@@ -400,9 +400,9 @@ PrefabInstance:
 
 
         In Versus Mode,
-        the goal is the Stump the other player. It''s recommended that you play with
-        the timer enabled, but you can also stop it with the pause button. Each time
-        the timer drops to 0, the current player will lose one move.'
+        the goal is be the last player standing. You are given a time limit of two
+        minutes to make each move. Each time the timer drops to 0, the current player
+        loses a move.'
       objectReference: {fileID: 0}
     - target: {fileID: 8592176030459383622, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material

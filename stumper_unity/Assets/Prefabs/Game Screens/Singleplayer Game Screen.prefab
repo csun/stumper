@@ -158,6 +158,10 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 107684581905815486, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 160003755852947960, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Name
       value: Singleplayer Game Screen
@@ -171,6 +175,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 578074993887764971, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 702972778655004463, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
@@ -238,6 +246,10 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4120066587497613530, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4703902307451671804, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
@@ -245,6 +257,10 @@ PrefabInstance:
     - target: {fileID: 4945428483152426499, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5272673955570713984, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_text
+      value: STUMPED!
       objectReference: {fileID: 0}
     - target: {fileID: 5391787991653416395, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
@@ -255,6 +271,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5623551674056336274, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5723638235832274978, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
@@ -399,7 +419,15 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8592176030459383622, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8812240895685080446, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 9188027245822750679, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}

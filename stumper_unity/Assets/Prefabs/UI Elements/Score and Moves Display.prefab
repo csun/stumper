@@ -426,12 +426,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
+      propertyPath: ForceStart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollDuration
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelay
-      value: 1
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutToEmpty
@@ -439,11 +443,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollDurationVariation
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelayVariation
-      value: 0.2
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 6530716146735940261, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: m_Pivot.x
@@ -575,12 +579,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
+      propertyPath: ForceStart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollDuration
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelay
-      value: 1
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutToEmpty
@@ -588,11 +596,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollDurationVariation
-      value: 0.2
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6124414867655844349, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: RollOutDelayVariation
-      value: 0.2
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6530716146735940261, guid: 0bc0447e4642ab04db6df38ff9b23796, type: 3}
       propertyPath: m_Pivot.x
