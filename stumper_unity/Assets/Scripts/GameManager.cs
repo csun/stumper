@@ -115,6 +115,7 @@ namespace Stumper
         public int[] Scores;
 
         HashSet<Node> usedNodes = new();
+        HashSet<string> usedWords = new();
 
         public void ToggleMenu()
         {
@@ -234,6 +235,7 @@ namespace Stumper
             }
 
             usedNodes.Add(nextNode);
+            usedWords.Add(nextNode.Word);
 
             // NOTE - Need to do this after adding this node as used so that it is included
             // in stumper calculations
@@ -292,6 +294,7 @@ namespace Stumper
         {
             candidateUsesCharacter.Clear();
             usedNodes.Clear();
+            usedWords.Clear();
             CurrentPlayer = 0;
             ResetTimer();
 
@@ -318,6 +321,8 @@ namespace Stumper
                 CurrentNode = roundStartingNode;
             }
 
+            usedNodes.Add(CurrentNode);
+            usedWords.Add(CurrentNode.Word);
             CurrentMenuState = MenuState.Gameplay;
             MenuAnimator.CloseMenu();
         }
@@ -360,7 +365,7 @@ namespace Stumper
             // Anagram - same length, no candidate letters unaccounted for, not same word
             else if (CandidateWord.Length == CurrentNode.Word.Length &&
                     charactersUnaccountedFor <= 1 &&
-                    CandidateWord != CurrentNode.Word)
+                    !usedWords.Contains(CandidateWord))
             {
                 CandidateStatus = CandidateWordStatus.Valid;
             }
@@ -372,7 +377,21 @@ namespace Stumper
             }
             else
             {
+                CandidateInvalidReason = "";
                 CandidateStatus = CandidateWordStatus.Invalid;
+
+                if (CandidateWord.Length > CurrentNode.Word.Length + 1)
+                {
+                    CandidateInvalidReason = "You cannot extend the word by more than 1 character.";
+                }
+                else if (charactersUnaccountedFor > 1)
+                {
+                    CandidateInvalidReason = "You cannot change or add more than 1 character.";
+                }
+                else if (usedWords.Contains(CandidateWord))
+                {
+                    CandidateInvalidReason = "You cannot re-use words.";
+                }
             }
         }
 

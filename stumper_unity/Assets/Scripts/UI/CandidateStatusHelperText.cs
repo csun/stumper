@@ -25,8 +25,7 @@ namespace Stumper
             }
             else if (Manager.CandidateStatus == GameManager.CandidateWordStatus.Invalid)
             {
-                // TODO Add invalid reason to validity computation in manager as well
-                Text.text = InvalidMessage;
+                Text.text = $"{InvalidMessage}\n{Manager.CandidateInvalidReason}";
             }
             else
             {
