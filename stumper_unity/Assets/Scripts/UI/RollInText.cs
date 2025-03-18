@@ -28,7 +28,6 @@ namespace Stumper
         private Vector3 mainStartPosition;
         private TMP_Text nextText;
         private Queue<string> displayQueue = new();
-        public bool IsAnimating => displayQueue.Count > 0;
 
         void Start()
         {
