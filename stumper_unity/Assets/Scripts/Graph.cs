@@ -64,6 +64,7 @@ namespace Stumper
         public bool AllowDeletions;
         public bool AllowAnagrams;
         public int StartingWordLength;
+        public float StartingWordMinimumLogFrequency;
 
         Dictionary<string, Node> wordToNode;
         WeightedList<Node> validStartNodes;
@@ -130,17 +131,25 @@ namespace Stumper
         {
             Debug.Log(Query("stumper"));
 
+            var longWords = "";
+            var startingWords = "";
             var maxLen = 0;
             foreach (var node in wordToNode.Values)
             {
                 maxLen = Math.Max(maxLen, node.Word.Length);
-                if (node.Word.Length == 13)
+                if (node.Word.Length >= 10)
                 {
-                    Debug.Log(node.Word);
+                    longWords += $"{node.Word}, ";
                 }
+            }
+            foreach (var node in validStartNodes)
+            {
+                startingWords += $"{node.Word}({node.LogFrequency}), ";
             }
 
             Debug.Log($"Longest word is {maxLen} long");
+            Debug.Log($"Long words {longWords}");
+            Debug.Log($"Starting words: {startingWords}");
         }
 
         [ContextMenu("Regenerate Graph")]
@@ -267,11 +276,13 @@ namespace Stumper
 
             foreach (var node in wordToNode.Values)
             {
-                if (node.Word.Length == StartingWordLength && node.Children.Count > 0)
+                if (node.Word.Length == StartingWordLength &&
+                    node.LogFrequency >= StartingWordMinimumLogFrequency &&
+                    node.Children.Count > 0)
                 {
                     // WARN - you can change how this gets weighted but it may silently overflow
                     // and discard some items internally. Make sure cumulative weights are kept inbounds.
-                    
+
                     // To match actual real life occurrence rates the log frequency would need to be used as an exponent of 10.
                     // However, that causes the overflow mentioned above. Using a lower power lets unusual words occur but hopefully
                     // not too frequently
