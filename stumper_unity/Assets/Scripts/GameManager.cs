@@ -48,7 +48,6 @@ namespace Stumper
         string _candidateWord = "";
         public CandidateWordStatus CandidateStatus { get; private set; }
         public string CandidateInvalidReason { get; private set; }
-        List<bool> candidateUsesCharacter = new();
 
         public MenuState CurrentMenuState
         {
@@ -294,7 +293,6 @@ namespace Stumper
 
         void ResetGameState(bool newWord = true)
         {
-            candidateUsesCharacter.Clear();
             usedNodes.Clear();
             usedWords.Clear();
             CurrentPlayer = 0;
@@ -332,67 +330,108 @@ namespace Stumper
 
         void UpdateCandidateValidity()
         {
-            var candidateLetterCounts = new Dictionary<char, int>();
+            const string MULTI_CHANGE_REASON = "Altered / added more than 1 letter.";
+
+            var lengthDiff = CandidateWord.Length - CurrentNode.Word.Length;
+            // Remove these two cases as possibilities immediately to simplify later logic
+            if (usedWords.Contains(CandidateWord))
+            {
+                CandidateStatus = CandidateWordStatus.Invalid;
+                CandidateInvalidReason = "Re-used a previously played word.";
+                return;
+            }
+            else if (lengthDiff > 1)
+            {
+                CandidateStatus = CandidateWordStatus.Invalid;
+                CandidateInvalidReason = MULTI_CHANGE_REASON;
+                return;
+            }
+
+            // First check if might be anagram
+            var anagramLetterCounts = new Dictionary<char, int>();
             foreach (var c in CandidateWord)
             {
-                candidateLetterCounts.TryAdd(c, 0);
-                candidateLetterCounts[c]++;
+                anagramLetterCounts.TryAdd(c, 0);
+                anagramLetterCounts[c]++;
             }
-
-            var charactersUnaccountedFor = CandidateWord.Length;
-            candidateUsesCharacter.Clear();
             foreach (var c in CurrentNode.Word)
             {
-                var isUsed = false;
-
-                if (candidateLetterCounts.ContainsKey(c))
-                {
-                    candidateLetterCounts[c]--;
-                    charactersUnaccountedFor--;
-                    if (candidateLetterCounts[c] == 0)
-                    {
-                        candidateLetterCounts.Remove(c);
-                    }
-                    isUsed = true;
-                }
-
-                candidateUsesCharacter.Add(isUsed);
+                anagramLetterCounts.TryAdd(c, 0);
+                anagramLetterCounts[c]--;
             }
 
-            // Potentially valid - shorter length, max one candidate letter not accounted for
-            if (CandidateWord.Length < CurrentNode.Word.Length && charactersUnaccountedFor <= 1)
+            var maybeAnagram = true;
+            foreach (var count in anagramLetterCounts.Values)
+            {
+                // There is at least one letter in the candidate which is not part of the current word
+                if (count > 0)
+                {
+                    maybeAnagram = false;
+                    break;
+                }
+            }
+
+            // Valid case 1: full anagram. Exit early.
+            // Note that we've already handled the case of the same exact word with the used word check
+            // at the start of this function.
+            if (maybeAnagram && lengthDiff == 0)
+            {
+                CandidateStatus = CandidateWordStatus.Valid;
+                return;
+            }
+            // Potentially valid case 1: on the way to becoming an anagram / no changes yet. Exit early
+            else if (maybeAnagram)
             {
                 CandidateStatus = CandidateWordStatus.PotentiallyValid;
+                return;
             }
-            // Edit - same length, one candidate letter not accounted for
-            // Anagram - same length, no candidate letters unaccounted for, not same word
-            else if (CandidateWord.Length == CurrentNode.Word.Length &&
-                    charactersUnaccountedFor <= 1 &&
-                    !usedWords.Contains(CandidateWord))
-            {
-                CandidateStatus = CandidateWordStatus.Valid;
-            }
-            // Extension - length + 1, one candidate letter not accounted for
-            else if (CandidateWord.Length == CurrentNode.Word.Length + 1 &&
-                    charactersUnaccountedFor == 1)
-            {
-                CandidateStatus = CandidateWordStatus.Valid;
-            }
-            else
-            {
-                CandidateInvalidReason = "";
-                CandidateStatus = CandidateWordStatus.Invalid;
 
-                if (charactersUnaccountedFor > 1)
+            // If impossible for it to be an anagram, we should only be able to find one edit / insertion
+            bool prefixMatches(int head, int candidateOffset)
+            {
+                while (head + candidateOffset < CandidateWord.Length && head < CurrentNode.Word.Length)
                 {
-                    CandidateInvalidReason = "Added / altered more than 1 character.";
+                    if (CandidateWord[head + candidateOffset] != CurrentNode.Word[head])
+                    {
+                        return false;
+                    }
+                    head++;
                 }
-                else if (usedWords.Contains(CandidateWord))
+
+                return true;
+            }
+
+            for (var head = 0; head < CandidateWord.Length && head < CurrentNode.Word.Length; head++)
+            {
+                // Because we know this is not an anagram, we can only find a max of one change
+                // Entering this block triggers the search for any more changes that would
+                // invalidate this word.
+                if (CandidateWord[head] != CurrentNode.Word[head])
                 {
-                    CandidateInvalidReason = "Re-used a previously played word.";
+                    // Indicates that this character was an in-place alteration
+                    if (prefixMatches(head + 1, 0) && lengthDiff <= 0)
+                    {
+                        CandidateStatus = lengthDiff == 0 ? CandidateWordStatus.Valid : CandidateWordStatus.PotentiallyValid;
+                    }
+                    // Indicates that this character was an insertion
+                    else if (prefixMatches(head, 1))
+                    {
+                        CandidateStatus = lengthDiff == 1 ? CandidateWordStatus.Valid : CandidateWordStatus.PotentiallyValid;
+                    }
+                    else
+                    {
+                        CandidateStatus = CandidateWordStatus.Invalid;
+                        CandidateInvalidReason = MULTI_CHANGE_REASON;
+                    }
+                    return;
                 }
             }
+
+            // To get to here, we must be in the case where we've added exactly one character to the end of the current word.
+            CandidateStatus = CandidateWordStatus.Valid;
         }
+
+
 
         void Start()
         {
