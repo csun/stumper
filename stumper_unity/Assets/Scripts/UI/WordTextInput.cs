@@ -12,6 +12,10 @@ namespace Stumper
         public GameManager Manager;
         public TMP_Text Display;
 
+        public Color InactiveSubmitColor;
+        public Color ActiveSubmitColor;
+        public TMP_Text SubmitButtonText;
+
         void Start()
         {
             var kbd = Keyboard.current;
@@ -30,6 +34,8 @@ namespace Stumper
         private void OnCandidateWordChanged()
         {
             Display.text = Manager.CandidateWord;
+            SubmitButtonText.color = Manager.CandidateStatus == GameManager.CandidateWordStatus.Valid ?
+                ActiveSubmitColor : InactiveSubmitColor;
         }
 
         private void OnTextInput(char c)

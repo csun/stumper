@@ -32,6 +32,7 @@ namespace Stumper
         public event Action OnTimerUpdated;
         public event Action OnTimerPauseChanged;
         public event Action OnMenuStateChanged;
+        public event Action<string> OnUpdateInfoMessage;
 
         public Graph WordGraph;
         public string CandidateWord
@@ -163,7 +164,7 @@ namespace Stumper
         public void SubmitWord()
         {
             if (CurrentMenuState != MenuState.Gameplay) { return; }
-            if (CandidateStatus == CandidateWordStatus.Invalid)
+            if (CandidateStatus != CandidateWordStatus.Valid)
             {
                 return;
             }
@@ -216,7 +217,7 @@ namespace Stumper
             }
 
             AddMoves(CurrentPlayer, -1);
-
+            OnUpdateInfoMessage?.Invoke("That's not a real word!");
         }
 
         private void HandleValidMove(Node nextNode)
@@ -228,6 +229,7 @@ namespace Stumper
             if (CurrentNode.Word.Length < nextNode.Word.Length && MoveLimitEnabled)
             {
                 AddMoves(CurrentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
+                OnUpdateInfoMessage?.Invoke("Word extended! Gained extra moves.");
             }
             else
             {
@@ -324,6 +326,7 @@ namespace Stumper
             usedNodes.Add(CurrentNode);
             usedWords.Add(CurrentNode.Word);
             CurrentMenuState = MenuState.Gameplay;
+            OnUpdateInfoMessage?.Invoke("");
             MenuAnimator.CloseMenu();
         }
 
@@ -380,17 +383,13 @@ namespace Stumper
                 CandidateInvalidReason = "";
                 CandidateStatus = CandidateWordStatus.Invalid;
 
-                if (CandidateWord.Length > CurrentNode.Word.Length + 1)
+                if (charactersUnaccountedFor > 1)
                 {
-                    CandidateInvalidReason = "You cannot extend the word by more than 1 character.";
-                }
-                else if (charactersUnaccountedFor > 1)
-                {
-                    CandidateInvalidReason = "You cannot change or add more than 1 character.";
+                    CandidateInvalidReason = "Added / altered more than 1 character.";
                 }
                 else if (usedWords.Contains(CandidateWord))
                 {
-                    CandidateInvalidReason = "You cannot re-use words.";
+                    CandidateInvalidReason = "Re-used a previously played word.";
                 }
             }
         }

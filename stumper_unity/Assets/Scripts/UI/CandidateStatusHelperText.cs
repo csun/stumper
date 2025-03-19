@@ -15,6 +15,7 @@ namespace Stumper
         void Start()
         {
             Manager.OnCandidateWordChanged += UpdateStatusText;
+            Manager.OnUpdateInfoMessage += (message) => Text.text = message;
         }
 
         void UpdateStatusText()
