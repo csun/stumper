@@ -25,6 +25,8 @@ namespace Stumper
         public void OnPointerClick(PointerEventData eventData)
         {
             Action.Invoke();
+            mouseInside = false;
+            Refresh();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
