@@ -324,6 +324,7 @@ namespace Stumper
             usedNodes.Add(CurrentNode);
             usedWords.Add(CurrentNode.Word);
             CurrentMenuState = MenuState.Gameplay;
+            CandidateWord = "";
             OnUpdateInfoMessage?.Invoke("");
             MenuAnimator.CloseMenu();
         }

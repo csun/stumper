@@ -1,3 +1,4 @@
+using Codice.Client.BaseCommands;
 using TMPro;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace Stumper
         void Start()
         {
             Manager.OnCandidateWordChanged += UpdateStatusText;
-            Manager.OnUpdateInfoMessage += (message) => Text.text = message;
+            Manager.OnUpdateInfoMessage += (message) => { if (message != "") { Text.text = message; } };
         }
 
         void UpdateStatusText()
