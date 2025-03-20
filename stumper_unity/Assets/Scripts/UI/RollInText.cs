@@ -22,6 +22,8 @@ namespace Stumper
 
         [Tooltip("If set, text will alternate roll directions")]
         public bool FlipFlop;
+        [Tooltip("If set, keeps requeueing elements after they're shown. You can use overrideForce on your ChangeText call to interrupt this.")]
+        public bool Loop;
 
         public float RollOutDelay;
         public float RollOutDelayVariation = 0;
@@ -34,7 +36,7 @@ namespace Stumper
         private int currentAnim = 0;
         private int skipToAnim = 0;
 
-        void Start()
+        void Awake()
         {
             mainStartPosition = MainText.rectTransform.localPosition;
 
@@ -71,6 +73,7 @@ namespace Stumper
                 {
                     break;
                 }
+
                 currentProgress = Mathf.Min(currentProgress + (Time.deltaTime / chosenDuration), 1);
                 var curvedProgress = Curve.Evaluate(currentProgress);
 
@@ -106,7 +109,12 @@ namespace Stumper
                 RollInFromBottom = !RollInFromBottom;
             }
 
-            displayQueue.Dequeue();
+            var text = displayQueue.Dequeue();
+            if (Loop)
+            {
+                ChangeText(text);
+            }
+
             currentAnim++;
 
             // If we don't have anything else coming in but are set to roll out to empty, queue.

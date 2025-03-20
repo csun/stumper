@@ -23,6 +23,14 @@ namespace Stumper
             GameSummary
         }
 
+        public enum LossReason
+        {
+            Conceded,
+            OutOfMoves,
+            OutOfTime,
+            Stumper
+        }
+
         public event Action OnCurrentPlayerChanged;
         public event Action OnCurrentNodeChanged;
         public event Action OnCandidateWordChanged;
@@ -49,6 +57,7 @@ namespace Stumper
         public CandidateWordStatus CandidateStatus { get; private set; }
         public string CandidateInvalidReason { get; private set; }
 
+        public LossReason LastLossReason;
         public MenuState CurrentMenuState
         {
             get => _currentMenuState;
@@ -181,10 +190,14 @@ namespace Stumper
                 HandleValidMove(node);
             }
 
-
-            if (MoveLimitEnabled && Moves[CurrentPlayer] <= 0)
+            var valid = ValidMoves();
+            if (valid.Count() == 0)
             {
-                DeclareLoser();
+                DeclareLoser(LossReason.Stumper);
+            }
+            else if (MoveLimitEnabled && Moves[CurrentPlayer] <= 0)
+            {
+                DeclareLoser(LossReason.OutOfMoves);
             }
         }
 
@@ -207,7 +220,7 @@ namespace Stumper
 
                 if (Strikes[CurrentPlayer] >= MaxStrikes)
                 {
-                    DeclareLoser();
+                    DeclareLoser(LossReason.OutOfMoves);
                 }
                 else
                 {
@@ -242,12 +255,6 @@ namespace Stumper
             // in stumper calculations
             CurrentNode = nextNode;
             CurrentPlayer = nextPlayer;
-
-            var valid = ValidMoves();
-            if (valid.Count() == 0)
-            {
-                DeclareLoser();
-            }
         }
 
         void AddMoves(int player, int amount)
@@ -257,17 +264,17 @@ namespace Stumper
             OnMovesUpdated?.Invoke(player, oldMoves);
         }
 
-        public void DeclareLoser()
+        public void Concede()
         {
-            var valid = ValidMoves();
-            var validStr = "Valid choices were: ";
-            foreach (var node in valid)
-            {
-                validStr += node.Word + ", ";
-            }
+            DeclareLoser(LossReason.Conceded);
+        }
 
+        void DeclareLoser(LossReason lossReason)
+        {
+            LastLossReason = lossReason;
             CurrentMenuState = MenuState.GameSummary;
-            MenuAnimator.OpenSummary();
+            // Don't delay if we've conceded as that means we're already in the menu
+            MenuAnimator.OpenSummary(lossReason != LossReason.Conceded);
         }
 
         public IEnumerable<Node> ValidMoves()
@@ -463,7 +470,7 @@ namespace Stumper
                 AddMoves(CurrentPlayer, -1);
                 if (Moves[CurrentPlayer] <= 0)
                 {
-                    DeclareLoser();
+                    DeclareLoser(LossReason.OutOfTime);
                 }
                 else
                 {

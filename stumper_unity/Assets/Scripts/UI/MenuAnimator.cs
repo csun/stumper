@@ -9,6 +9,7 @@ namespace Stumper
         public float MenuContentYOffset;
         public AnimationCurve Curve;
         public float Duration;
+        public float GameEndDelay;
         private IEnumerator currentCoroutine;
         private float currentMenuOpenProgress;
         private bool shouldOpenMenu;
@@ -17,6 +18,8 @@ namespace Stumper
         public GameObject SummaryContent;
         public GameObject HelpContent;
 
+        public GameSummary SummaryManager;
+
         private float gameLocalY;
 
         void Start()
@@ -24,9 +27,19 @@ namespace Stumper
             gameLocalY = ContentTransform.localPosition.y;
         }
 
-        public void OpenSummary()
+        public void OpenSummary(bool shouldDelay)
         {
+            StartCoroutine(SummaryDelay(shouldDelay));
+        }
+
+        IEnumerator SummaryDelay(bool shouldDelay)
+        {
+            if (shouldDelay)
+            {
+                yield return new WaitForSeconds(GameEndDelay);
+            }
             ShowContent(SummaryContent);
+            SummaryManager.RefreshStats();
         }
 
         public void OpenHelp()
@@ -47,11 +60,15 @@ namespace Stumper
 
         private void ShowContent(GameObject content)
         {
-            MenuContent.SetActive(false);
-            SummaryContent.SetActive(false);
-            HelpContent.SetActive(false);
+            void ChangeActiveState(GameObject obj)
+            {
+                obj.SetActive(obj == content);
+            }
 
-            content.SetActive(true);
+            ChangeActiveState(MenuContent);
+            ChangeActiveState(SummaryContent);
+            ChangeActiveState(HelpContent);
+
             shouldOpenMenu = true;
             StartAnim();
         }
