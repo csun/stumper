@@ -234,6 +234,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1282022329326362754, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1516776061727944660, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 24.000122
+      objectReference: {fileID: 0}
     - target: {fileID: 1634835764984118766, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -293,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 1809529262803555651, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927822263510856668, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1957232188604095753, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_AnchorMax.y
@@ -337,6 +349,10 @@ PrefabInstance:
     - target: {fileID: 1988453816145405842, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2163701911858363530, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 24.000122
       objectReference: {fileID: 0}
     - target: {fileID: 2164266105405537039, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
@@ -738,6 +754,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7106646826845222149, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7117057985855711553, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
@@ -771,6 +791,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7545212086513472301, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7632616447276772345, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 24.000122
+      objectReference: {fileID: 0}
+    - target: {fileID: 7866244244271113391, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
@@ -876,30 +904,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8302652551069578860, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8456330330853215290, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
-      propertyPath: m_text
-      value: 'Keep changing the word until you get Stumped! The game ends when you
-        run out of moves or play a word from which no moves are possible (a Stumper).
-
-
-        Each
-        move can extend the word by a single letter, alter a single letter, or create
-        an anagram of the current word. Only moves that extend the word will reward
-        you with additional moves. Repeat words are not allowed.
-
-
-        In Solo
-        Mode you get points based on how long your word is. Get the highest score
-        possible before getting Stumped!'
-      objectReference: {fileID: 0}
-    - target: {fileID: 8456330330853215290, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: -3511329594716499817, guid: 29c57da3fc12ba24fadeb8b7e09c74b2, type: 2}
-    - target: {fileID: 8456330330853215290, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}
-      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8518814357540420388, guid: 95cac8f916b777649b9ae49a28d7c787, type: 3}

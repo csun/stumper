@@ -241,7 +241,7 @@ namespace Stumper
             if (CurrentNode.Word.Length < nextNode.Word.Length && MoveLimitEnabled)
             {
                 AddMoves(CurrentPlayer, WordLengthAddedMoves[Math.Min(CurrentNode.Word.Length - WordGraph.StartingWordLength, WordLengthAddedMoves.Count - 1)]);
-                OnUpdateInfoMessage?.Invoke("Word extended! Gained extra moves.");
+                OnUpdateInfoMessage?.Invoke("Addition! Gained extra moves.");
             }
             else
             {

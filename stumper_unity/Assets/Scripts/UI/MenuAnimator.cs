@@ -58,6 +58,11 @@ namespace Stumper
             StartAnim();
         }
 
+        public void LinkToWebsite()
+        {
+            Application.OpenURL("https://www.csun.io/");
+        }
+
         private void ShowContent(GameObject content)
         {
             void ChangeActiveState(GameObject obj)

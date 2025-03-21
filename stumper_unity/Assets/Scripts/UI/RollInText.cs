@@ -110,7 +110,8 @@ namespace Stumper
             }
 
             var text = displayQueue.Dequeue();
-            if (Loop)
+            // Don't loop if there's only one entry. It looks dumb.
+            if (Loop && displayQueue.Count > 0)
             {
                 ChangeText(text);
             }

@@ -129,7 +129,7 @@ namespace Stumper
         [ContextMenu("Debug Info")]
         void DebugInfo()
         {
-            Debug.Log(Query("stumper"));
+            Debug.Log(Query("STAR"));
 
             var longWords = "";
             var startingWords = "";
