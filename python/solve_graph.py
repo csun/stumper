@@ -35,6 +35,44 @@ class SolvedNode:
         self.max_moves_on_entry = max_moves
         self.optimal_scores = [0] * max_moves
         self.optimal_paths = [[]] * max_moves
+
+    def find_optimum(self, moves_left, solved_by_id, visited, update_self=True):
+        if moves_left <= 0:
+            return 0, [self.node]
+
+        visited.add(self.node.index)
+
+        optimal_score = 0
+        optimal_path = []
+        for child in self.node.children:
+            if child.index in visited:
+                continue
+
+            child_solved = solved_by_id[child.index]
+            # In the case of an addition, check for our memoized solution
+            if len(child.word) > len(self.node.word):
+                child_score, child_path = child_solved.optimum_for_moves_left(moves_left + ADDITION_GAINED_MOVES)
+            else:
+                child_score, child_path = child_solved.find_optimum(moves_left - 1, solved_by_id, visited, update_self=False)
+
+            if child_score > optimal_score:
+                optimal_score = child_score
+                optimal_path = child_path
+
+        visited.remove(self.node.index)
+
+        optimal_score += len(self.node.word)
+        optimal_path.append(self.node)
+        # If this is set it indicates that this is the outer call of the recursion. We should update
+        # our memoized solution. Note that we explicitly do not want to do this if we are not the outer
+        # call (entry point into tier) because this memoization has no concept of what nodes had already
+        # been visited up to that point. Therefore we can only guarantee the validity of these optimums
+        # when we have a clean slate (no other visited nodes on this tier or higher).
+        if update_self:
+            self.optimal_scores[moves_left - 1] = optimal_score
+            self.optimal_paths[moves_left - 1] = optimal_path
+        else:
+            return optimal_score, optimal_path
         
     def optimum_for_moves_left(self, moves_left):
         if moves_left == 0:
@@ -42,11 +80,6 @@ class SolvedNode:
         
         # Moves left is 1-indexed whereas our array is 0-indexed. Subtract 1
         return self.optimal_scores[moves_left - 1], self.optimal_paths[moves_left - 1]
-
-    def set_optimum_for_moves_left(self, moves_left, score, path):
-        # Moves left is 1-indexed whereas our array is 0-indexed. Subtract 1
-        self.optimal_scores[moves_left - 1] = score
-        self.optimal_paths[moves_left - 1] = path
     
     def to_serializable(self):
         return {
@@ -54,33 +87,6 @@ class SolvedNode:
             'optimal_scores': self.optimal_scores,
             'optimal_paths': [[node.word for node in path] for path in self.optimal_paths]
         }
-
-def find_optimal(node, moves_left, solved_by_id, visited):
-    if moves_left <= 0:
-        return 0, [node]
-
-    visited.add(node.index)
-
-    optimal_score = 0
-    optimal_path = []
-    for child in node.children:
-        if child.index in visited:
-            continue
-
-        child_solved = solved_by_id[child.index]
-        # In the case of an addition, check for our memoized solution
-        if len(child.word) > len(node.word):
-            child_score, child_path = child_solved.optimum_for_moves_left(moves_left + ADDITION_GAINED_MOVES)
-        else:
-            child_score, child_path = find_optimal(child, moves_left - 1, solved_by_id, visited)
-            
-        if child_score > optimal_score:
-            optimal_score = child_score
-            optimal_path = child_path
-
-    visited.remove(node.index)
-
-    return optimal_score + len(node.word), [node] + optimal_path
 
 if __name__ == '__main__':
     graph = Graph.from_file('graph.json')
@@ -148,8 +154,7 @@ if __name__ == '__main__':
                 # Lateral traversal will be handled by find_optimal
                 min_moves = STARTING_MOVES if tier == 0 else 1
                 for moves_left in range(1, solved.max_moves_on_entry + 1):
-                    optimal_score, optimal_path = find_optimal(solved.node, moves_left, solved_by_id, set())
-                    solved.set_optimum_for_moves_left(moves_left, optimal_score, optimal_path)
+                    solved.find_optimum(moves_left, solved_by_id, set())
 
     # Store the results of the first tier (4 letter words)
     with open('optimal.json', 'w') as f:
