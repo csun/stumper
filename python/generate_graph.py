@@ -3,7 +3,7 @@ from wordfreq import zipf_frequency
 
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 STARTING_LENGTH = 4
-MIN_STARTING_POPULARITY = 2
+MIN_STARTING_POPULARITY = 0
 ALLOW_DELETIONS = False
 ALLOW_MOVES = False
 ALLOW_ANAGRAMS = True
@@ -21,9 +21,10 @@ class Graph:
         with open(filepath) as f:
             graph_contents = json.load(f)
         
-        for raw_node in graph_contents:
+        for idx, raw_node in enumerate(graph_contents):
             node = graph.add_word(raw_node['word'])
             node.popularity = raw_node['popularity']
+            node.index = idx
 
         for raw_node in graph_contents:
             parent = graph.query(raw_node['word'])
