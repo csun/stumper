@@ -1,4 +1,5 @@
 import json
+import queue
 from tqdm import tqdm
 from generate_graph import Graph
 
@@ -21,17 +22,17 @@ MAX_LENGTH = 13
 STARTING_MOVES = 3
 ADDITION_GAINED_MOVES = 2
 
-# The max possible number of moves that a player can have left
-# upon reaching a node at this tier
-def max_moves_left(tier):
-    return STARTING_MOVES + (ADDITION_GAINED_MOVES * tier)
-
 class SolvedNode:
     def __init__(self, node):
         self.node = node
         self.tier = len(self.node.word) - MIN_LENGTH
-
-        max_moves = max_moves_left(self.tier)
+        
+        # Whether or not this node can be reached from a shorter word or
+        # if it is a starting word. Will be initialized later for non-starting words
+        self.is_entry = self.tier == 0
+        
+    def init_max_moves_left(self, max_moves):
+        self.max_moves_on_entry = max_moves
         self.optimal_scores = [0] * max_moves
         self.optimal_paths = [[]] * max_moves
         
@@ -93,19 +94,69 @@ if __name__ == '__main__':
         solved_by_tier[solved.tier].append(solved)
         solved_by_id[node.index] = solved
 
+    # We only perform exhaustive search on tier entry points (nodes that can be
+    # reached via addition from a shorter word). Compute those now
+    for id in tqdm(solved_by_id, desc='Finding tier entry points'):
+        node = solved_by_id[id].node
+
+        for child in node.children:
+            if len(child.word) > len(node.word):
+                solved_by_id[child.index].is_entry = True
+    
+    # Because we memoize the optimums for each combination of node + moves left, we
+    # need to calculate the max possible moves you can have left when first reaching a node.
+    max_move_queue = queue.Queue()
+    max_move_visited = set()
+    for start_node in solved_by_tier[0]:
+        max_move_queue.put((start_node, STARTING_MOVES))
+
+    # BFS to find shortest path to each node
+    while not max_move_queue.empty():
+        (solved, moves) = max_move_queue.get() 
+        if solved.node.index in max_move_visited:
+            continue
+
+        max_move_visited.add(solved.node.index)
+        solved.init_max_moves_left(moves)
+        for child in solved.node.children:
+            if len(child.word) > len(solved.node.word):
+                # If this is an addition, we gain moves
+                max_move_queue.put((solved_by_id[child.index], moves + ADDITION_GAINED_MOVES))
+            else:
+                # Otherwise we lose a move
+                max_move_queue.put((solved_by_id[child.index], moves - 1))
+     
+    
+    for tier_id, nodes in enumerate(solved_by_tier):
+        count = 0
+        total_max_moves = 0
+        for node in nodes:
+            total_max_moves += node.max_moves_on_entry
+            if node.is_entry:
+                count += 1
+        print(f'Tier {tier_id} has {count}/{len(nodes)} entry points and average max moves of {total_max_moves / len(nodes)}')
+
     # Iterate backwards starting with longest words
     for tier in range(total_tiers-1, -1, -1):
             for solved in tqdm(solved_by_tier[tier], desc=f'Processing tier {tier}'):
-                for moves_left in range(1, max_moves_left(tier) + 1):
+                if not solved.is_entry:
+                    # If this node is not an entry point, we only need to process it when traversing
+                    # from entry points on this tier
+                    continue
+
+                # If we're in the starting node tier we only need to handle the case of max moves left (entry).
+                # Lateral traversal will be handled by find_optimal
+                min_moves = STARTING_MOVES if tier == 0 else 1
+                for moves_left in range(1, solved.max_moves_on_entry + 1):
                     optimal_score, optimal_path = find_optimal(solved.node, moves_left, solved_by_id, set())
                     solved.set_optimum_for_moves_left(moves_left, optimal_score, optimal_path)
 
-    # Store the results
+    # Store the results of the first tier (4 letter words)
     with open('optimal.json', 'w') as f:
         output_nodes = []
 
-        for start_node in graph.valid_start_nodes:
-            output_nodes.append(solved_by_id[start_node.index].to_serializable())
+        for start_node in solved_by_tier[0]:
+            output_nodes.append(start_node.to_serializable())
             
         json.dump(output_nodes, f, indent=2)
 
