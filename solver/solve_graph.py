@@ -83,9 +83,12 @@ class SolvedNode:
     
     def to_serializable(self):
         return {
+            'id': self.node.index,
             'word': self.node.word,
-            'optimal_scores': self.optimal_scores,
-            'optimal_paths': [[node.word for node in path] for path in self.optimal_paths]
+            'tier': self.tier,
+            'max_moves_on_entry': self.max_moves_on_entry,
+            'children': [child.index for child in self.node.children],
+            'is_entry': self.is_entry,
         }
 
 if __name__ == '__main__':
@@ -133,6 +136,7 @@ if __name__ == '__main__':
                 max_move_queue.put((solved_by_id[child.index], moves - 1))
      
     
+    """
     for tier_id, nodes in enumerate(solved_by_tier):
         count = 0
         total_max_moves = 0
@@ -155,14 +159,15 @@ if __name__ == '__main__':
                 min_moves = STARTING_MOVES if tier == 0 else 1
                 for moves_left in range(1, solved.max_moves_on_entry + 1):
                     solved.find_optimum(moves_left, solved_by_id, set())
+    """
 
     # Store the results of the first tier (4 letter words)
-    with open('optimal.json', 'w') as f:
+    with open('preprocessed_graph.json', 'w') as f:
         output_nodes = []
 
-        for start_node in solved_by_tier[0]:
-            output_nodes.append(start_node.to_serializable())
+        for node in solved_by_id.values():
+            output_nodes.append(node.to_serializable())
             
-        json.dump(output_nodes, f, indent=2)
+        json.dump(output_nodes, f)
 
                 
