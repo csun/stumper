@@ -1,2 +1,4 @@
 wordfreq == 3.0.2
 tqdm
+numpy
+matplotlib

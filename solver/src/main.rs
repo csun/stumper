@@ -30,49 +30,56 @@ impl Node {
         memo: &HashMap<(usize, usize), (usize, Vec<usize>)>,
     ) -> (usize, Vec<usize>) {
         // Base case - no moves left
-        if moves_left == 0 || self.children.is_empty() {
+        if moves_left <= 0 {
             return (0, vec![self.id]);
         }
 
-        // Mark current node as visited
         visited.insert(self.id);
 
+        let mut found_move = false;
         let mut optimal_score = 0;
         let mut optimal_path = vec![];
 
-        // Try each child node
         for child_id in &self.children {
-            // Skip if we've already visited this node
             if visited.contains(&child_id) {
                 continue;
             }
 
             let child = &all_nodes[*child_id];
             let (child_score, child_path) = if child.word.len() > self.word.len() {
-                // Addition case - get more moves
+                // Addition case - we can use the memo table because we're crossing a tier boundary.
+                // Note that we explicitly cannot use the memo table when searching within the same tier,
+                // because it does not respect the visitation status of existing nodes. When we cross a
+                // tier boundary we are guaranteed a clean slate because there is no chance we've already
+                // used any nodes in the next tier.
                 memo.get(&(child.id, moves_left + ADDITION_GAINED_MOVES))
-                    .unwrap_or(&(0, vec![]))
+                    .unwrap()
                     .clone()
             } else {
                 // Normal case - use one move
                 child.find_optimum(moves_left - 1, all_nodes, visited, memo)
             };
 
-            if child_score > optimal_score {
+            // Include the no found move case here because dead ends will return a score of 0. Therefore
+            // if there's only dead end continuations (like at the end of almost all paths) we will fail
+            // to add the final move in the path.
+            if !found_move || child_score > optimal_score {
                 optimal_score = child_score;
                 optimal_path = child_path;
             }
+            found_move = true;
         }
 
-        // Remove ourselves from visited set
         visited.remove(&self.id);
 
-        // Add our score and ID to the result
-        optimal_score += self.word.len();
-        let mut final_path = vec![self.id];
-        final_path.extend(optimal_path);
+        // Note that there are cases where we have not found a single move (all children have been visited,
+        // no children, etc.) and therefore we do not want to score here.
+        if found_move {
+            optimal_score += self.word.len();
+        }
+        optimal_path.push(self.id);
 
-        (optimal_score, final_path)
+        (optimal_score, optimal_path)
     }
 }
 
@@ -116,7 +123,7 @@ fn main() {
             // from entry points on this tier. Some nodes can have negative max_moves_on_entry,
             // which indicates that they are not reachable from any start word using the given
             // move gain rules.
-            if !node.is_entry || node.max_moves_on_entry < 1 {
+            if !node.is_entry || node.max_moves_on_entry < 0 {
                 return;
             }
 
@@ -143,7 +150,11 @@ fn main() {
         .iter()
         .map(|node| {
             let (score, id_path) = locked_optimums.get(&(node.id, STARTING_MOVES)).unwrap();
-            let path = id_path.iter().map(|id| nodes[*id].word.clone()).collect();
+            let path = id_path
+                .iter()
+                .rev()
+                .map(|id| nodes[*id].word.clone())
+                .collect();
             SolvedNode {
                 word: node.word.clone(),
                 optimal_score: *score,
