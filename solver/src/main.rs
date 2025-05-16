@@ -5,11 +5,15 @@ use std::{
 };
 
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use rand::seq::SliceRandom;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 const STARTING_MOVES: usize = 3;
 const ADDITION_GAINED_MOVES: usize = 2;
+// Mixes up the order of children so that, in theory, we might see greater variety
+// in the paths we take.
+const PERFORM_SHUFFLE: bool = true;
 
 #[derive(Deserialize, Debug)]
 struct Node {
@@ -92,7 +96,18 @@ struct SolvedNode {
 
 fn main() {
     let nodes: Vec<Node> =
-        serde_json::from_reader(File::open("preprocessed_graph.json").unwrap()).unwrap();
+        serde_json::from_reader::<File, Vec<Node>>(File::open("preprocessed_graph.json").unwrap())
+            .unwrap()
+            .into_iter()
+            .map(|mut node| {
+                // Randomly shuffle the children of each node to add some variety to the paths we take.
+                if PERFORM_SHUFFLE {
+                    let mut rng = rand::rng();
+                    node.children.shuffle(&mut rng);
+                }
+                node
+            })
+            .collect();
     let mut nodes_by_tier: Vec<Vec<&Node>> = vec![vec![]];
 
     for node in nodes.iter() {
