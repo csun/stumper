@@ -4122,19 +4122,12 @@
   {
     "word": "AQUA",
     "optimal_score": 9,
-    "optimal_path": [
-      "AQUA",
-      "AQUAS",
-      "AQUAE"
-    ]
+    "optimal_path": ["AQUA", "AQUAS", "AQUAE"]
   },
   {
     "word": "ARAK",
     "optimal_score": 4,
-    "optimal_path": [
-      "ARAK",
-      "ARAKS"
-    ]
+    "optimal_path": ["ARAK", "ARAKS"]
   },
   {
     "word": "ARBS",
@@ -4728,9 +4721,7 @@
   {
     "word": "ASCI",
     "optimal_score": 0,
-    "optimal_path": [
-      "ASCI"
-    ]
+    "optimal_path": ["ASCI"]
   },
   {
     "word": "ASEA",
@@ -25426,14 +25417,7 @@
   {
     "word": "DJIN",
     "optimal_score": 26,
-    "optimal_path": [
-      "DJIN",
-      "DJINS",
-      "DJINN",
-      "DJINNY",
-      "DJINNS",
-      "DJINNI"
-    ]
+    "optimal_path": ["DJIN", "DJINS", "DJINN", "DJINNY", "DJINNS", "DJINNI"]
   },
   {
     "word": "DOAT",
@@ -29238,9 +29222,7 @@
   {
     "word": "EBBS",
     "optimal_score": 0,
-    "optimal_path": [
-      "EBBS"
-    ]
+    "optimal_path": ["EBBS"]
   },
   {
     "word": "EBON",
@@ -30702,9 +30684,7 @@
   {
     "word": "ENUF",
     "optimal_score": 0,
-    "optimal_path": [
-      "ENUF"
-    ]
+    "optimal_path": ["ENUF"]
   },
   {
     "word": "ENVY",
@@ -50007,11 +49987,7 @@
   {
     "word": "HYMN",
     "optimal_score": 9,
-    "optimal_path": [
-      "HYMN",
-      "HYMNS",
-      "HYMENS"
-    ]
+    "optimal_path": ["HYMN", "HYMNS", "HYMENS"]
   },
   {
     "word": "HYPE",
@@ -50667,10 +50643,7 @@
   {
     "word": "IGLU",
     "optimal_score": 4,
-    "optimal_path": [
-      "IGLU",
-      "IGLUS"
-    ]
+    "optimal_path": ["IGLU", "IGLUS"]
   },
   {
     "word": "IKAT",
@@ -52783,10 +52756,7 @@
   {
     "word": "JEHU",
     "optimal_score": 4,
-    "optimal_path": [
-      "JEHU",
-      "JEHUS"
-    ]
+    "optimal_path": ["JEHU", "JEHUS"]
   },
   {
     "word": "JELL",
@@ -53008,9 +52978,7 @@
   {
     "word": "JEUX",
     "optimal_score": 0,
-    "optimal_path": [
-      "JEUX"
-    ]
+    "optimal_path": ["JEUX"]
   },
   {
     "word": "JEWS",
@@ -53449,10 +53417,7 @@
   {
     "word": "JISM",
     "optimal_score": 4,
-    "optimal_path": [
-      "JISM",
-      "JISMS"
-    ]
+    "optimal_path": ["JISM", "JISMS"]
   },
   {
     "word": "JIVE",
@@ -57272,10 +57237,7 @@
   {
     "word": "KIWI",
     "optimal_score": 4,
-    "optimal_path": [
-      "KIWI",
-      "KIWIS"
-    ]
+    "optimal_path": ["KIWI", "KIWIS"]
   },
   {
     "word": "KLIK",
@@ -57838,10 +57800,7 @@
   {
     "word": "KOJI",
     "optimal_score": 4,
-    "optimal_path": [
-      "KOJI",
-      "KOJIS"
-    ]
+    "optimal_path": ["KOJI", "KOJIS"]
   },
   {
     "word": "KOLA",
@@ -58310,10 +58269,7 @@
   {
     "word": "KUFI",
     "optimal_score": 4,
-    "optimal_path": [
-      "KUFI",
-      "KUFIS"
-    ]
+    "optimal_path": ["KUFI", "KUFIS"]
   },
   {
     "word": "KUNA",
@@ -65223,9 +65179,7 @@
   {
     "word": "LYNX",
     "optimal_score": 0,
-    "optimal_path": [
-      "LYNX"
-    ]
+    "optimal_path": ["LYNX"]
   },
   {
     "word": "LYRE",
@@ -76270,11 +76224,7 @@
   {
     "word": "OGAM",
     "optimal_score": 9,
-    "optimal_path": [
-      "OGAM",
-      "OGAMS",
-      "OGHAMS"
-    ]
+    "optimal_path": ["OGAM", "OGAMS", "OGHAMS"]
   },
   {
     "word": "OGEE",
@@ -77211,10 +77161,7 @@
   {
     "word": "ONYX",
     "optimal_score": 4,
-    "optimal_path": [
-      "ONYX",
-      "ORYX"
-    ]
+    "optimal_path": ["ONYX", "ORYX"]
   },
   {
     "word": "OOHS",
@@ -77963,10 +77910,7 @@
   {
     "word": "ORYX",
     "optimal_score": 4,
-    "optimal_path": [
-      "ORYX",
-      "ONYX"
-    ]
+    "optimal_path": ["ORYX", "ONYX"]
   },
   {
     "word": "ORZO",
@@ -78466,9 +78410,7 @@
   {
     "word": "OVUM",
     "optimal_score": 0,
-    "optimal_path": [
-      "OVUM"
-    ]
+    "optimal_path": ["OVUM"]
   },
   {
     "word": "OWED",
@@ -81604,9 +81546,7 @@
   {
     "word": "PFFT",
     "optimal_score": 0,
-    "optimal_path": [
-      "PFFT"
-    ]
+    "optimal_path": ["PFFT"]
   },
   {
     "word": "PFUI",
@@ -113093,10 +113033,7 @@
   {
     "word": "UPBY",
     "optimal_score": 4,
-    "optimal_path": [
-      "UPBY",
-      "UPBYE"
-    ]
+    "optimal_path": ["UPBY", "UPBYE"]
   },
   {
     "word": "UPDO",

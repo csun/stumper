@@ -35,51 +35,6 @@ class SolvedNode:
         self.max_moves_on_entry = max_moves
         self.optimal_scores = [0] * max_moves
         self.optimal_paths = [[]] * max_moves
-
-    def find_optimum(self, moves_left, solved_by_id, visited, update_self=True):
-        if moves_left <= 0:
-            return 0, [self.node]
-
-        visited.add(self.node.index)
-
-        optimal_score = 0
-        optimal_path = []
-        for child in self.node.children:
-            if child.index in visited:
-                continue
-
-            child_solved = solved_by_id[child.index]
-            # In the case of an addition, check for our memoized solution
-            if len(child.word) > len(self.node.word):
-                child_score, child_path = child_solved.optimum_for_moves_left(moves_left + ADDITION_GAINED_MOVES)
-            else:
-                child_score, child_path = child_solved.find_optimum(moves_left - 1, solved_by_id, visited, update_self=False)
-
-            if child_score > optimal_score:
-                optimal_score = child_score
-                optimal_path = child_path
-
-        visited.remove(self.node.index)
-
-        optimal_score += len(self.node.word)
-        optimal_path.append(self.node)
-        # If this is set it indicates that this is the outer call of the recursion. We should update
-        # our memoized solution. Note that we explicitly do not want to do this if we are not the outer
-        # call (entry point into tier) because this memoization has no concept of what nodes had already
-        # been visited up to that point. Therefore we can only guarantee the validity of these optimums
-        # when we have a clean slate (no other visited nodes on this tier or higher).
-        if update_self:
-            self.optimal_scores[moves_left - 1] = optimal_score
-            self.optimal_paths[moves_left - 1] = optimal_path
-        else:
-            return optimal_score, optimal_path
-        
-    def optimum_for_moves_left(self, moves_left):
-        if moves_left == 0:
-            return 0, [self.node]
-        
-        # Moves left is 1-indexed whereas our array is 0-indexed. Subtract 1
-        return self.optimal_scores[moves_left - 1], self.optimal_paths[moves_left - 1]
     
     def to_serializable(self):
         return {
@@ -135,32 +90,6 @@ if __name__ == '__main__':
                 # Otherwise we lose a move
                 max_move_queue.put((solved_by_id[child.index], moves - 1))
      
-    
-    """
-    for tier_id, nodes in enumerate(solved_by_tier):
-        count = 0
-        total_max_moves = 0
-        for node in nodes:
-            total_max_moves += node.max_moves_on_entry
-            if node.is_entry:
-                count += 1
-        print(f'Tier {tier_id} has {count}/{len(nodes)} entry points and average max moves of {total_max_moves / len(nodes)}')
-
-    # Iterate backwards starting with longest words
-    for tier in range(total_tiers-1, -1, -1):
-            for solved in tqdm(solved_by_tier[tier], desc=f'Processing tier {tier}'):
-                if not solved.is_entry:
-                    # If this node is not an entry point, we only need to process it when traversing
-                    # from entry points on this tier
-                    continue
-
-                # If we're in the starting node tier we only need to handle the case of max moves left (entry).
-                # Lateral traversal will be handled by find_optimal
-                min_moves = STARTING_MOVES if tier == 0 else 1
-                for moves_left in range(1, solved.max_moves_on_entry + 1):
-                    solved.find_optimum(moves_left, solved_by_id, set())
-    """
-
     # Store the results of the first tier (4 letter words)
     with open('preprocessed_graph.json', 'w') as f:
         output_nodes = []
